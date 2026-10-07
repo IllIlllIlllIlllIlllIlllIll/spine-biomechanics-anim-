@@ -1,6 +1,15 @@
-# Biomécanique du rachis — animation scientifique
+# Biomécanique du rachis — animations scientifiques
 
-Vidéo explicative de 30 s (1920×1080, 60 fps, 1800 frames) sur le fonctionnement biomécanique de la colonne vertébrale, générée par un moteur Canvas 2D **déterministe** : chaque image est une fonction pure de son numéro.
+Deux vidéos explicatives (1920×1080, 60 fps) générées par un moteur Canvas 2D **déterministe** : chaque image est une fonction pure de son numéro.
+
+| Partie | Sujet | Durée | Dossier |
+|---|---|---|---|
+| 1 | Le fonctionnement biomécanique de la colonne vertébrale | 30 s · 1800 frames | racine |
+| 2 | Le haubanage musculaire : stabilisateurs locaux, érecteurs et couples de forces | 40 s · 2400 frames | [`partie2/`](#partie-2--le-haubanage-musculaire) |
+
+Le moteur commun (maths, couleurs, typographie, primitives, modèle rachidien paramétrique) est dans `lib/core.js` ; les deux parties le chargent.
+
+# Partie 1 — Le fonctionnement biomécanique de la colonne vertébrale
 
 | Fichier | Rôle |
 |---|---|
@@ -61,3 +70,60 @@ Autres références : loi de Delmas R = N² + 1 (A. Delmas, 1951 ; Kapandji), un
 1. `npm run qa` : test automatique des boîtes englobantes de tous les textes, sur les 1800 frames.
 2. Planche contact : inspection visuelle des superpositions et de la lisibilité.
 3. Détection des sauts : `tblend=difference` + `signalstats` sur `output.mp4` ; aucun pic isolé, la variation la plus forte correspond au dézoom continu de la scène 4.
+
+# Partie 2 — Le haubanage musculaire
+
+40 s (2400 frames, 0 → 2399). Palette : stabilisateurs profonds cobalt `#2d72d9`, érecteurs ambre `#ff9f1c`,
+fléchisseurs et paroi abdominale cramoisi `#e71d36`, vecteurs et moments vert `#2ec4b6`, squelette cyan atténué.
+
+| Fichier | Rôle |
+|---|---|
+| `partie2/index.html` | Lecteur et API `window.seekToFrame(i)` (`?frame=N`, `?debug`, `?debug=anchors`) |
+| `partie2/anatomy.js` | Squelette sagittal (bassin, fémur, côtes, crâne, paroi abdominale), posture et ancrages musculaires nommés |
+| `partie2/muscles.js` | Moteur musculaire : faisceaux, ventres, tendons, vague d'activation, ligne d'action, bras de levier, vecteurs force, arcs de moment |
+| `partie2/animation.js` | Timeline globale, caméras, vues (sagittale, axiale L3, frontale postérieure) et transitions, HUD, panneau |
+| `partie2/scene1.js … scene4.js` | Une scène par fichier (contrat dans `partie2/SPEC.md`) |
+| `partie2/STORYBOARD.md` | Storyboard validé et table des corrections scientifiques |
+| `partie2/output.mp4` | Vidéo finale (H.264, yuv420p) |
+| `partie2/contact_sheet.png` | Planche contact : 24 images, une toutes les 100 frames |
+| `partie2/contact_sheet_text.png` | Planche de lisibilité : 10 frames clés à 960 px, depuis les PNG sans perte |
+
+```bash
+npm run p2:qa             # chevauchements / sorties de cadre des textes, sur les 2400 frames
+npm run p2:render         # → partie2/frames/frame_00000.png … frame_02399.png
+npm run p2:video          # → partie2/output.mp4
+npm run p2:contact        # → partie2/contact_sheet.png
+npm run p2:contact-text   # → partie2/contact_sheet_text.png
+npm run p2:build          # les cinq, dans l'ordre
+```
+
+## Scènes
+
+| Scène | Temps | Contenu |
+|---|---|---|
+| 1 · Stabilisateurs locaux | 0–10 s | Multifide (L2–S1, processus mamillaires → épineux), résultante en L4/L5 et son bras de levier ; coupe axiale L3 (transverse, trois feuillets du fascia thoraco-lombaire) ; ballon de pression intra-abdominale et décharge axiale |
+| 2 · Haubanage postérieur | 10–22 s | Érecteurs du rachis (iliocostal, longissimus jusqu'au processus mastoïde, épineux) ; antéflexion 0 → 40° avec M = F × d calculé en direct ; vue frontale : carré des lombes, inclinaison latérale de 10° |
+| 3 · Sangle antérieure | 22–32 s | Psoas et iliaque (compression, faibles moments segmentaires), antéversion +6° ; grand droit et obliques, rétroversion −6° ; couples de forces pelviens |
+| 4 · Équilibre des couples | 32–40 s | Antéflexion 30° avec 20 kg sur les épaules, cocontraction ; zone neutre de Panjabi |
+
+## Modèles mécaniques (didactiques, ordres de grandeur)
+
+| Grandeur | Modèle | Source |
+|---|---|---|
+| Posture | PI = PT + SS ; incidence 50°, pente sacrée ≈ 32°, version ≈ 18° ; antéflexion α répartie 0,6 lombaire / 0,4 hanche ; antéversion compensée par la lordose | Legaye et al. 1998 (relation) ; valeurs du modèle |
+| Multifide | Rotation sagittale postérieure, sans action de translation ; ≈ 20 % du moment extenseur en L4–L5 | Macintosh & Bogduk 1986 ; Bogduk et al. 1992 |
+| Pression intra-abdominale | −18 à −31 % de compression selon le modèle (PIA 5 → 10 kPa) ; raideur du tronc accrue sans hausse de compression | Stokes 2010 ; Ludvig 2019 |
+| Moment extenseur (scène 2) | Statique plane en L4–L5 : W = 60 % de 70 kg appliqué en G ; F_ES = W·d_G / d_ES ; C = (W + F_ES)·n du disque, n = normale au plateau ; d_ES mesuré sur la géométrie | Macintosh et al. 1993 ; Bogduk et al. 1992 |
+| Carré des lombes | Allongement des faisceaux = longueur / longueur au repos − 1, calculé sur la géométrie frontale | modèle |
+| Psoas | Compression et cisaillement importants, moments segmentaires faibles ; effet lordosant indirect par l'antéversion pelvienne | Bogduk, Pearcy & Hadfield 1992 |
+| Grand droit, obliques | Insertions propres de chaque muscle ; les obliques sont les principaux rotateurs du tronc | Macintosh 1993 |
+| Stabilité | Trois sous-systèmes (passif, actif, contrôle neural) ; zone neutre en flexion-extension réduite de 83 % par des forces musculaires simulées ; la cocontraction psoas + multifide rigidifie en inclinaison et en rotation | Panjabi 1992 ; Wilke et al. 1995 ; Quint et al. 1998 |
+
+Les DOI de toutes les sources figurent dans `partie2/SPEC.md` et `partie2/STORYBOARD.md`.
+
+## Contrôle qualité
+
+1. `npm run p2:qa` : boîtes englobantes de tous les textes, transportées à travers les transitions de vue, sur les 2400 frames.
+2. Planche contact et planche de lisibilité des textes anatomiques.
+3. Boucle : la frame 2399 est identique, octet par octet, à la frame 0.
+4. Détection des sauts sur `partie2/output.mp4` (`tblend=difference` + `signalstats`).
