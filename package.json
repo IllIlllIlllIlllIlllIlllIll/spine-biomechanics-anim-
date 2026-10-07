@@ -1,14 +1,20 @@
 {
   "name": "spine-biomechanics-anim",
   "version": "1.0.0",
-  "description": "Animation scientifique déterministe (Canvas 2D) : biomécanique du rachis, 1920x1080, 60 fps, 1800 frames",
+  "description": "Animations scientifiques déterministes (Canvas 2D) : biomécanique du rachis — partie 1 (30 s) et partie 2 « haubanage musculaire » (40 s)",
   "private": true,
   "scripts": {
     "render": "node render.js",
     "qa": "node render.js --qa",
     "video": "ffmpeg -y -framerate 60 -i frames/frame_%05d.png -c:v libx264 -pix_fmt yuv420p output.mp4",
     "contact": "ffmpeg -y -i output.mp4 -vf \"select='not(mod(n,75))',scale=480:-1,tile=4x6\" -vsync vfr contact_sheet.png",
-    "build": "npm run qa && npm run render && npm run video && npm run contact"
+    "build": "npm run qa && npm run render && npm run video && npm run contact",
+    "p2:qa": "node render.js --page partie2/index.html --qa",
+    "p2:render": "node render.js --page partie2/index.html --out partie2/frames",
+    "p2:video": "ffmpeg -y -framerate 60 -i partie2/frames/frame_%05d.png -c:v libx264 -pix_fmt yuv420p partie2/output.mp4",
+    "p2:contact": "ffmpeg -y -i partie2/output.mp4 -vf \"select='not(mod(n,100))',scale=480:-1,tile=4x6\" -vsync vfr partie2/contact_sheet.png",
+    "p2:contact-text": "node partie2/contact-text.js",
+    "p2:build": "npm run p2:qa && npm run p2:render && npm run p2:video && npm run p2:contact && npm run p2:contact-text"
   },
   "devDependencies": {
     "playwright": "^1.56.1"
