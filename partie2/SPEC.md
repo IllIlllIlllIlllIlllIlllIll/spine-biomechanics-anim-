@@ -79,6 +79,16 @@ Vues dédiées (scènes 1 et 2) : la caméra est fournie par la vue elle-même, 
 `camera(F) { return P2.layout.camFrom({ f: [0, 0], s: [640, 575], sc: 2.8 }) }`. Le framework applique les
 transitions (opacité, écrasement) autour de `(640, 575)`.
 
+### Fenêtres de chaque scène (impératif : aucune superposition de textes entre scènes)
+| scène | contenu monde (vues) | panneau (fondus inclus) | frames |
+|---|---|---|---|
+| 1 | sagittale 0–5,5 et 8,0–10,0 ; axiale 5,0–8,5 | 0,6 → **9,9** (fondu de sortie terminé à 9,9) | 0–599 |
+| 2 | sagittale 10,0–18,3 ; frontale 18,0–22,6 | **10,0** → **21,9** | 600–1319 |
+| 3 | sagittale 22,0–32,0 | **22,0** → **31,9** | 1320–1919 |
+| 4 | sagittale 32,0–39,4 | **32,0** → 39,4 (le fondu global de 39,4 à 40 est géré par le framework) | 1920–2399 |
+Les étiquettes posées sur le dessin suivent la même règle : la scène sortante a fini son fondu avant que la
+suivante n'affiche les siennes (décalage ≥ 0,1 s).
+
 ## 4. Ancrages `F.A` (points monde, recalculés à chaque frame selon la posture)
 
 | appel | point |
