@@ -460,18 +460,20 @@
       { a: lt, lc: COBALT_L, size: 16, align: 'right', id: 's1-tra' });
     const li = fio(t, 8.55, 9.85, 0.3, 0.3);
     tag(ctx, W(A.cart(9)), [330, 268], [{ s: 'CARTILAGES 7–12', c: 'white', size: 14 }], { a: li, lc: COBALT_L, size: 14, align: 'right', id: 's1-cart' });
-    tag(ctx, W(A.crest(0.25)), [330, 862], [{ s: 'CRÊTE ILIAQUE', c: 'white', size: 14 }, { s: '+ LIGAMENT INGUINAL', c: 'white', size: 14 }],
+    tag(ctx, W(A.crest(0.25)), [330, 796], [{ s: 'CRÊTE ILIAQUE', c: 'white', size: 14 }, { s: '+ LIGAMENT INGUINAL', c: 'white', size: 14 }],
       { a: li, lc: COBALT_L, size: 14, align: 'right', id: 's1-cre', more: [W(A.inguinal(0.15))] });
     // --- pressions sur les parois du ballon (normales sortantes)
     const pr = smooth(seg(t, 8.9, 9.4)) * out;
     if (pr > 0.004) {
-      const push = (pts, us, len) => {
+      // radial : direction centroïde → paroi (coupole du diaphragme, où les normales locales se croisent)
+      const push = (pts, us, len, radial) => {
         for (const u of us) {
-          const i = Math.round(clamp(u) * (pts.length - 1)), p = polyAt(pts, u), n = outward(pts, i, cen);
+          const i = Math.round(clamp(u) * (pts.length - 1)), p = polyAt(pts, u);
+          const n = radial ? vnorm(vsub(p, cen)) : outward(pts, i, cen);
           arrow(ctx, W(vsub(p, vmul(n, len * 0.95))), W(vadd(p, vmul(n, len * 0.3))), TEAL_L, pr, { lw: 2.4, head: 10, noGlow: true, outline: true });
         }
       };
-      push(G.wall.diaph, [0.16, 0.28, 0.4, 0.5], 24 * pr);   // versant antérieur et coupole : vers le haut
+      push(G.wall.diaph, [0.14, 0.3, 0.46], 24 * pr, true); // versant antérieur et coupole : vers le haut
       push(G.wall.floor, [0.3, 0.5, 0.7], 22 * pr);          // plancher pelvien : vers le bas
       push(G.wall.inner, [0.35, 0.48, 0.61, 0.74], 22 * pr); // paroi antérieure : vers l'avant
     }

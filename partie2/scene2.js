@@ -576,7 +576,7 @@
   function corBendGauge(ctx, F, cam, cs) {
     const a = fio(F.t, 19.3, 21.8, 0.3, 0.3) * clamp(Math.abs(cs.tilt) / 1.5);
     if (a <= 0.004) return;
-    const T12 = cs.FA.fr.T12, o = cam.w2s(T12.o), R = 108 * cam.sc;
+    const T12 = cs.FA.fr.T12, o = cam.w2s(T12.o), R = 62 * cam.sc;
     const up = [-T12.y[0], -T12.y[1]];
     ctx.setLineDash([5, 5]); ctx.strokeStyle = rgba('white', 0.6 * a); ctx.lineWidth = 1.2;
     line(ctx, o, [o[0], o[1] - R - 10]); ctx.setLineDash([]);
@@ -701,10 +701,10 @@
     }
     const pF = [X(m.alpha), Y(m.FES)], pC = [X(m.alpha), Y(m.C)];
     dot(ctx, pC, 4, 'white', a); dot(ctx, pF, 5, C_LG, a); dot(ctx, pF, 2, 'white', a);
-    // étiquettes des courbes (à droite du point courant, sans sortir du cadre)
-    const lx = Math.min(X(m.alpha) + 12, x0 + w - 60);
-    compo(ctx, ['F', { s: 'ES', sub: true }], lx, Math.min(pF[1] + 4, pC[1] - 16), { size: 13, c: C_LG, a, w: 700, id: 's2plF' });
-    compo(ctx, ['C'], lx, pC[1] + 18, { size: 13, c: 'white', a, w: 700, id: 's2plC' });
+    // étiquettes des courbes : C au-dessus de sa courbe, F_ES au-dessous de la sienne (jamais entre les deux)
+    const lx = Math.min(X(m.alpha) + 10, x0 + w - 36);
+    compo(ctx, ['F', { s: 'ES', sub: true }], lx, pF[1] + 19, { size: 13, c: C_LG, a, w: 700, id: 's2plF' });
+    compo(ctx, ['C'], lx, pC[1] - 9, { size: 13, c: 'white', a, w: 700, id: 's2plC' });
   }
 
   function panelMoment(ctx, F, a, m) {
@@ -738,9 +738,9 @@
     drawPlot(ctx, F, x + 46, P.PY + 480, Wd - 60, 120, a, m);
     // notes
     const m0 = mechAt(0), red = (1 - m.dES / m0.dES) * 100;
-    let y = P.PY + 660;
-    y += P.wrap(ctx, 'Modèle statique plan : W en G (60 % de 70 kg), F_ES selon la ligne d’action moyenne des faisceaux thoraciques ; C = (W + F_ES)·n du disque.', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n1' });
-    y += P.wrap(ctx, 'Ici d_ES diminue de ' + fr(Math.max(0, red), 0) + ' % (≤ 18 % en flexion : Macintosh et al. 1993, doi:10.1097/00007632-199306000-00013).', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n2' });
+    let y = P.PY + 664;
+    y += P.wrap(ctx, 'Modèle statique plan : W en G (60 % de 70 kg) ; C = (W + F_ES)·n du disque.', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n1' });
+    y += P.wrap(ctx, 'Ici d_ES diminue de ' + fr(Math.max(0, red), 0) + ' % (≤ 18 % en flexion, Macintosh et al. 1993).', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n2' });
     P.wrap(ctx, 'Faisceaux thoraciques ≈ 50 % du moment extenseur en L4–L5 (Bogduk et al. 1992).', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n3' });
   }
 
