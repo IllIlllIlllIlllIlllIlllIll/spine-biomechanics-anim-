@@ -1,0 +1,16 @@
+{
+  "name": "spine-biomechanics-anim",
+  "version": "1.0.0",
+  "description": "Animation scientifique déterministe (Canvas 2D) : biomécanique du rachis, 1920x1080, 60 fps, 1800 frames",
+  "private": true,
+  "scripts": {
+    "render": "node render.js",
+    "qa": "node render.js --qa",
+    "video": "ffmpeg -y -framerate 60 -i frames/frame_%05d.png -c:v libx264 -pix_fmt yuv420p output.mp4",
+    "contact": "ffmpeg -y -i output.mp4 -vf \"select='not(mod(n,75))',scale=480:-1,tile=4x6\" -vsync vfr contact_sheet.png",
+    "build": "npm run qa && npm run render && npm run video && npm run contact"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}
