@@ -535,8 +535,8 @@
     const aN = Math.atan2(-nS[1], -nS[0]), aF = Math.atan2(P.L.u[1], P.L.u[0]);
     ctx.strokeStyle = rgba(C_TXT, 0.8 * a); ctx.lineWidth = 1.2;
     ctx.beginPath(); ctx.arc(O[0], O[1], 34, Math.min(aN, aF), Math.max(aN, aF)); ctx.stroke();
-    const am = (aN + aF) / 2;
-    text(ctx, fr(P.ang, 0) + '°', O[0] + 46 * Math.cos(am) - 4, O[1] + 46 * Math.sin(am) + 10, { size: 12, c: C_TXT, a, align: 'right', id: 's3iA' });
+    const am = (aN + aF) / 2, aA = a * smooth(seg(t, 25.65, 25.85)); // angle affiché une fois les vecteurs tracés
+    text(ctx, fr(P.ang, 0) + '°', O[0] + 46 * Math.cos(am) - 4, O[1] + 46 * Math.sin(am) + 10, { size: 12, c: C_TXT, a: aA, align: 'right', id: 's3iA' });
     arrow(ctx, O, eC, 'white', a, { lw: 3, head: 12, outline: true, noGlow: true });
     arrow(ctx, O, eS, 'teal', a, { lw: 3, head: 12, outline: true, noGlow: true });
     arrow(ctx, O, eF, C_PS, a, { lw: 3.5, head: 14, outline: true, noGlow: true });
