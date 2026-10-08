@@ -57,7 +57,7 @@
     const size = o.size || 16;
     const P = parts.map((p) => (typeof p === 'string' ? { s: p } : p));
     const ws = P.map((p) => {
-      p.sz = p.sub ? Math.max(11, Math.round(size * 0.68)) : p.size || size;
+      p.sz = p.sub ? Math.max(12, Math.round(size * 0.75)) : p.size || size;
       return measure(ctx, p.s, p.sz, o.font, p.w || o.w, o.ls) + (p.sub ? 2 : 0);
     });
     const tot = ws.reduce((s, w) => s + w, 0);
@@ -218,10 +218,7 @@
     tag(ctx, cam.w2s(A.v('T5', [62, 20])), [X, 384], [{ s: 'ÉPINEUX', c: C_SP, w: 700, size: 15 }, { s: 'épineuses T11–L2 → T1–T8', size: 13, c: 'white', ls: 0.5 }], { a: aSP, lc: C_SP, id: 's2cSP' });
     tag(ctx, cam.w2s(A.v('T10', [53, 4])), [X, 540], [{ s: 'ILIOCOSTAL', c: C_IC, w: 700, size: 15 }, { s: 'crête iliaque → angles costaux', size: 13, c: 'white', ls: 0.5 }], { a: aIC, lc: C_IC, id: 's2cIC' });
     tag(ctx, cam.w2s(A.v('T12', [37, -1])), [X, 616], [{ s: 'LONGISSIMUS', c: C_LG, w: 700, size: 15 }, { s: 'sacrum → transverses, côtes', size: 13, c: 'white', ls: 0.5 }], { a: aLG, lc: C_LG, id: 's2cLG' });
-    tag(ctx, cam.w2s(A.v('L4', [74, 0])), [X, 668], [{ s: 'APONÉVROSE DES ÉRECTEURS', size: 13, w: 600 }], { a: fio(t, 11.4, T.lab1, 0.35, 0.3), id: 's2apo' });
-    // l'occiput n'est pas une insertion des érecteurs
-    const oa = fio(t, 12.2, T.lab1, 0.35, 0.3);
-    tag(ctx, cam.w2s(A.skull('occiput')), [868, 212], [{ s: 'occiput : semi-épineux de la tête', size: 12, c: 'grey', ls: 0 }, { s: '(transversaire-épineux), pas les érecteurs', size: 12, c: 'grey', ls: 0 }], { a: oa, id: 's2occ' });
+    tag(ctx, cam.w2s(A.v('L4', [74, 0])), [X, 668], [{ s: 'APONÉVROSE DES ÉRECTEURS', size: 14, w: 600 }], { a: fio(t, 11.4, T.lab1, 0.35, 0.3), id: 's2apo' });
   }
 
   function sagErectors(ctx, F, cam, m) {
@@ -530,7 +527,7 @@
       for (const k of QL_GROUPS) {
         const e = cs.st[s][k];
         const act = conv ? clamp(e / 0.05) : 0.12 * (1 - bendA);
-        MU.drawMuscle(ctx, cam, FA, QL[s][k], { grow, act, a: conv ? 1 : 1 - 0.35 * bendA, t });
+        MU.drawMuscle(ctx, cam, FA, QL[s][k], { grow, act, a: (conv ? 1 : 1 - 0.35 * bendA) * (1 - smooth(seg(t, 21.7, 22.0))), t });
       }
     }
     // crêtes iliaques redessinées par-dessus les origines
@@ -596,16 +593,16 @@
     // gauche : carré des lombes et ses 3 groupes
     const L = -1;
     const fm = (k, i, u) => { const f = QL[L][k].fascicles[i]; return S(vlerp(f.e0(FA), f.e1(FA), u)); };
-    tag(ctx, fm('ic', 3, 0.55), [XL, 410], [{ s: 'CARRÉ DES LOMBES', c: 'amber', w: 700, size: 16 }], { a: ag, align: 'right', lc: 'amber', id: 's2qlT' });
-    tag(ctx, fm('ic', 2, 0.3), [XL, 462], [{ s: 'faisceaux ilio-costaux', c: C_IC, w: 600 }], { a: ag, align: 'right', lc: C_IC, id: 's2qlI' });
-    tag(ctx, fm('it', 1, 0.45), [XL, 512], [{ s: 'ilio-transversaires', c: C_LG, w: 600 }], { a: ag, align: 'right', lc: C_LG, id: 's2qlT2' });
-    tag(ctx, fm('ct', 0, 0.35), [XL, 562], [{ s: 'costo-transversaires', c: C_SP, w: 600 }], { a: ag, align: 'right', lc: C_SP, id: 's2qlC' });
+    text(ctx, 'CARRÉ DES LOMBES', XL + 12, 372, { size: 16, c: 'amber', a: ag, w: 700, align: 'right', id: 's2qlT' });
+    tag(ctx, fm('ct', 0, 0.35), [XL, 420], [{ s: 'costo-transversaires', c: C_SP, w: 600 }], { a: ag, align: 'right', lc: C_SP, id: 's2qlC' });
+    tag(ctx, fm('ic', 2, 0.3), [XL, 470], [{ s: 'faisceaux ilio-costaux', c: C_IC, w: 600 }], { a: ag, align: 'right', lc: C_IC, id: 's2qlI' });
+    tag(ctx, fm('it', 1, 0.45), [XL, 520], [{ s: 'ilio-transversaires', c: C_LG, w: 600 }], { a: ag, align: 'right', lc: C_LG, id: 's2qlT2' });
     const conv = cs.conv, sideName = (s) => (s < 0 ? 'GAUCHE' : 'DROIT');
     // états des deux côtés pendant l'inclinaison
     tag(ctx, S(FA.crest(0.5, conv)), [conv < 0 ? XL : XR, 650], [{ s: 'CÔTÉ CONVEXE (' + sideName(conv) + ')', c: 'teal', w: 700 }, { s: 'hauban tendu', c: 'white', size: 13, ls: 0.5 }],
       { a: ac, align: conv < 0 ? 'right' : 'left', lc: 'teal', id: 's2cvx' });
     const f2 = QL[-conv].ic.fascicles[2];
-    tag(ctx, S(vlerp(f2.e0(FA), f2.e1(FA), 0.5)), [conv < 0 ? XR : XL, 548], [{ s: 'CÔTÉ CONCAVE (' + sideName(-conv) + ')', c: 'grey', w: 700 }, { s: 'relâché', c: 'white', size: 13, ls: 0.5 }],
+    tag(ctx, S(vlerp(f2.e0(FA), f2.e1(FA), 0.75)), [conv < 0 ? XR : XL, 548], [{ s: 'CÔTÉ CONCAVE (' + sideName(-conv) + ')', c: 'grey', w: 700 }, { s: 'relâché', c: 'white', size: 13, ls: 0.5 }],
       { a: ac, align: conv < 0 ? 'left' : 'right', id: 's2ccv' });
     // droite : repères osseux
     const R = 1, T12 = FA.fr.T12;
@@ -637,9 +634,9 @@
     y += P.attachRow(ctx, 'ORIGINES', 'crête sacrée médiane · crête iliaque postérieure · épineuses lombaires basses · aponévrose des érecteurs', x, y, a, { id: 's2p1o' });
     y += 16;
     const cols = [
-      [C_IC, 'ILIOCOSTAL', 'colonne latérale', '→ angles costaux 4 à 12 ; iliocostal du cou → processus transverses C4–C6', 11.3],
-      [C_LG, 'LONGISSIMUS', 'colonne intermédiaire', '→ processus transverses T1–T12, côtes 3 à 12 ; → processus mastoïde (longissimus capitis)', 11.5],
-      [C_SP, 'ÉPINEUX', 'colonne médiale', 'épineuses T11–L2 → épineuses T1–T8', 11.7],
+      [C_IC, 'ILIOCOSTAL', 'colonne latérale', '→ angles costaux 4 à 12 ; iliocostal du cou → processus transverses C4–C6', 10.6],
+      [C_LG, 'LONGISSIMUS', 'colonne intermédiaire', '→ processus transverses T1–T12, côtes 3 à 12 ; → processus mastoïde (longissimus capitis)', 10.85],
+      [C_SP, 'ÉPINEUX', 'colonne médiale', 'épineuses T11–L2 → épineuses T1–T8', 11.1],
     ];
     for (const [col, name, pos, ins, t0] of cols) {
       const ca = a * smooth(seg(t, t0, t0 + 0.35));
@@ -650,13 +647,11 @@
       y += 10;
     }
     y += 4;
-    const na = a * smooth(seg(t, 12.0, 12.35));
+    const na = a * smooth(seg(t, 11.4, 11.75));
     ctx.strokeStyle = rgba('grey', 0.4 * na); ctx.lineWidth = 1; line(ctx, [x, y - 8], [x + Wd, y - 8]);
     y += 10 + P.wrap(ctx, 'L’occiput n’est pas une insertion des érecteurs : il reçoit le semi-épineux de la tête (système transversaire-épineux).', x, y + 10, Wd, { size: 13, c: 'grey', a: na, id: 's2p1occ' });
     y += 12;
-    y += P.attachRow(ctx, 'ACTION', 'bilatérale : extension du rachis et freinage excentrique de la flexion ; unilatérale : inclinaison homolatérale', x, y, a, { id: 's2p1a' });
-    y += 6;
-    y += P.attachRow(ctx, 'INNERVATION', 'rameaux dorsaux des nerfs spinaux (segmentaire)', x, y, a, { id: 's2p1n' });
+    y += P.attachRow(ctx, 'ACTION', 'bilatérale : extension du rachis et freinage excentrique de la flexion ; unilatérale : inclinaison homolatérale', x, y, a * smooth(seg(t, 11.8, 12.1)), { id: 's2p1a' });
     P.cite(ctx, 'Bogduk, Macintosh & Pearcy 1992 · doi:10.1097/00007632-199208000-00007', x, P.PY + P.PH - 34, a);
   }
 
@@ -715,13 +710,13 @@
     text(ctx, 'équilibre : M', x, P.PY + 160, { size: 13, c: 'grey', a, id: 's2p2e0' });
     compo(ctx, [{ s: 'ES', sub: true }, ' = M', { s: 'G', sub: true }, ' → F', { s: 'ES', sub: true }, ' = M', { s: 'G', sub: true }, ' / d', { s: 'ES', sub: true }],
       x + measure(ctx, 'équilibre : M', 13), P.PY + 160, { size: 13, c: 'grey', a, id: 's2p2e1' });
-    drawLever(ctx, P.PX + P.PW - 110, P.PY + 120, m, a);
+    drawLever(ctx, P.PX + P.PW - 130, P.PY + 120, m, a);
     // valeurs en direct
     const rows = [
       [['α'], 'ANTÉFLEXION DU TRONC', fr(m.alpha, 1), '°', 'white'],
       [['W'], 'POIDS TÊTE-BRAS-TRONC', frN(W_HAT), 'N', 'teal'],
       [['d', { s: 'G', sub: true }], 'BRAS DE LEVIER DU POIDS', fr(m.dG / 10, 1), 'cm', 'teal'],
-      [['M', { s: 'G', sub: true }], 'MOMENT FLÉCHISSANT W·d_G', fr(m.MG, 1), 'N·m', 'teal'],
+      [['M', { s: 'G', sub: true }], 'MOMENT FLÉCHISSANT W × d', fr(m.MG, 1), 'N·m', 'teal'],
       [['d', { s: 'ES', sub: true }], 'BRAS DE LEVIER DES ÉRECTEURS', fr(m.dES / 10, 1), 'cm', C_LG],
       [['F', { s: 'ES', sub: true }], 'FORCE DES ÉRECTEURS', frN(m.FES), 'N', C_LG],
       [['d', { s: 'G', sub: true }, '/d', { s: 'ES', sub: true }], 'DÉSAVANTAGE MÉCANIQUE', fr(m.ratio, 2), '', 'white'],
@@ -730,7 +725,7 @@
     rows.forEach((r, i) => {
       const y = P.PY + 214 + i * 31;
       compo(ctx, r[0], x, y, { size: 17, c: r[4], a, w: 700, id: 's2p2k' + i });
-      text(ctx, r[1].replace('d_G', 'd G'), x + 86, y - 1, { size: 12, c: 'grey', a, ls: 0.8, id: 's2p2l' + i });
+      text(ctx, r[1], x + 86, y - 1, { size: 12, c: 'grey', a, ls: 0.8, id: 's2p2l' + i });
       text(ctx, r[2], x + 446, y, { size: 21, c: 'white', a, align: 'right', w: 600, id: 's2p2v' + i });
       if (r[3]) text(ctx, r[3], x + 454, y, { size: 14, c: 'grey', a, id: 's2p2u' + i });
       ctx.strokeStyle = rgba('grey', 0.15 * a); ctx.lineWidth = 1; line(ctx, [x, y + 11], [x + Wd, y + 11]);
@@ -739,32 +734,27 @@
     // notes
     const m0 = mechAt(0), red = (1 - m.dES / m0.dES) * 100;
     let y = P.PY + 664;
-    y += P.wrap(ctx, 'Modèle statique plan : W en G (60 % de 70 kg) ; C = (W + F_ES)·n du disque.', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n1' });
-    y += P.wrap(ctx, 'Ici d_ES diminue de ' + fr(Math.max(0, red), 0) + ' % (≤ 18 % en flexion, Macintosh et al. 1993).', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n2' });
-    P.wrap(ctx, 'Faisceaux thoraciques ≈ 50 % du moment extenseur en L4–L5 (Bogduk et al. 1992).', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n3' });
+    y += P.wrap(ctx, 'Modèle plan : W = 60 % de 70 kg, en G ; force des érecteurs = résultante de tous les extenseurs ; C = composante normale au disque.', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n1' });
+    P.wrap(ctx, 'Bras de levier des érecteurs : −' + fr(Math.max(0, red), 0) + ' % ici ; en flexion, moment maximal ≤ −18 % (Macintosh et al. 1993).', x, y, Wd, { size: 12, c: 'grey', a, id: 's2p2n2' });
   }
 
   function panelQL(ctx, F, a, cs) {
     const P = F.panel, t = F.t, x = P.PX + 30, Wd = P.PW - 60;
     P.header(ctx, 'CARRÉ DES LOMBES', 'hauban frontal', a, 's2p3', 'amber');
-    let y = P.PY + 98;
-    y += P.attachRow(ctx, 'ORIGINE', 'lèvre interne de la crête iliaque (partie postérieure) · ligament ilio-lombaire', x, y, a, { id: 's2p3o' });
-    y += 10;
-    y += P.attachRow(ctx, 'TERMINAISONS', 'bord inférieur de la 12e côte (moitié médiale) · sommets des processus costiformes L1–L4', x, y, a, { id: 's2p3t' });
-    y += 12;
-    text(ctx, 'TROIS GROUPES DE FAISCEAUX', x, y, { size: 12, c: 'grey', a, ls: 1.5, w: 700, id: 's2p3g' });
+    let y = P.PY + 100;
+    const sa = (k) => a * smooth(seg(t, 18.4 + 0.25 * k, 18.7 + 0.25 * k));
+    text(ctx, 'TROIS GROUPES DE FAISCEAUX', x, y, { size: 12, c: 'grey', a: sa(0), ls: 1.5, w: 700, id: 's2p3g' });
     y += 24;
     const G = [[C_IC, 'ilio-costaux', 'crête → 12e côte'], [C_LG, 'ilio-transversaires', 'crête → costiformes L1–L4'], [C_SP, 'costo-transversaires', '12e côte → costiformes']];
     G.forEach(([col, n, d], i) => {
-      ctx.strokeStyle = rgba(col, a); ctx.lineWidth = 3; line(ctx, [x, y - 5], [x + 14, y - 5]);
-      text(ctx, n, x + 24, y, { size: 14, c: col, a, w: 700, id: 's2p3gn' + i });
-      text(ctx, d, x + 250, y, { size: 13, c: 'white', a, id: 's2p3gd' + i });
+      const ga = sa(i + 1);
+      ctx.strokeStyle = rgba(col, ga); ctx.lineWidth = 3; line(ctx, [x, y - 5], [x + 14, y - 5]);
+      text(ctx, n, x + 24, y, { size: 14, c: col, a: ga, w: 700, id: 's2p3gn' + i });
+      text(ctx, d, x + 250, y, { size: 13, c: 'white', a: ga, id: 's2p3gd' + i });
       y += 24;
     });
-    y += 6;
-    y += P.attachRow(ctx, 'RÔLE', 'hauban frontal : en inclinaison latérale, le côté convexe se tend et freine le mouvement ; fixe la 12e côte (inspiration) et stabilise la charnière thoraco-lombaire', x, y, a, { id: 's2p3r' });
-    y += 6;
-    y += P.attachRow(ctx, 'INNERVATION', 'rameaux antérieurs de T12 à L4', x, y, a, { id: 's2p3n' });
+    y += 10;
+    y += P.attachRow(ctx, 'RÔLE', 'hauban frontal : en inclinaison latérale, le côté convexe se tend et freine le mouvement ; fixe la 12e côte et la charnière thoraco-lombaire', x, y, sa(4), { id: 's2p3r' });
     // valeurs en direct
     y += 14;
     ctx.strokeStyle = rgba('grey', 0.4 * a); ctx.lineWidth = 1; line(ctx, [x, y - 14], [x + Wd, y - 14]);
