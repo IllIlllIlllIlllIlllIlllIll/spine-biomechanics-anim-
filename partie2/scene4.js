@@ -29,11 +29,11 @@
   // ------------------------------------------------------------------ fenêtres temporelles (s)
   const T = {
     s0: 32.0,                   // début du contenu sagittal (la scène 3 a terminé à 32,0)
-    lab: [32.45, 33.85],        // étiquettes des haubans
+    lab: [32.3, 33.85],        // étiquettes des haubans
     mech: [33.0, 36.95],        // équilibre des couples (dessin)
     coB: 35.2,                  // bascule scénario 1 → scénario 2 (cocontraction)
     pj: [37.05, 41],            // système de Panjabi (dessin) — suit le fondu global (39,4 → 40)
-    p1: [32.1, 33.25], p2: [33.3, 36.95], p3: [37.0, 41],   // bloc 1 : 0,2 s après la fin du panneau de la scène 3 (31,9)
+    p1: [32.1, 34.0], p2: [34.05, 36.95], p3: [37.0, 41],   // bloc 1 : 0,2 s après la fin du panneau de la scène 3 (31,9)
   };
 
   // ------------------------------------------------------------------ constantes
@@ -191,7 +191,7 @@
     if (!REF) {
       const G = P2.anatomy.sagittal({ pelvicTilt: 0, lumbarFlex: 0.6 * LEAN_REF, hipFlex: 0.4 * LEAN_REF });
       const m = mech(P2.anatomy.anchors(G), G, LOAD_REF);
-      REF = { MES: m.B.MES, FES: m.B.FES, stiff: m.B.stiff, C: m.B.C };
+      REF = { MES: m.B.MES, FES: m.B.FES, stiff: m.B.stiff, C: m.B.C, m };
     }
     return REF;
   }
@@ -283,7 +283,7 @@
     const t = F.t, A = F.A, S = (p) => cam.w2s(p);
     const k = (t0) => fio(t, t0, T.lab[1], 0.3, 0.3);
     const XR = 930, XL = 440;
-    tag(ctx, S(A.v('T11', [53, 3])), [XR, 452], [{ s: 'ÉRECTEURS DU RACHIS', c: 'amber', w: 700 }, { s: 'haubans postérieurs', size: 13, ls: 0.5 }, { s: 'bassin, sacrum → côtes', size: 13, ls: 0.5 }], { a: k(T.lab[0]), lc: 'amber', id: 's4lES' });
+    tag(ctx, S(A.v('T11', [53, 3])), [XR, 452], [{ s: 'ÉRECTEURS DU RACHIS', c: 'amber', w: 700 }, { s: 'haubans postérieurs', size: 13, ls: 0.5 }], { a: k(T.lab[0]), lc: 'amber', id: 's4lES' });
     tag(ctx, S(vlerp(A.spinInf('L3', 0.3), A.mam('L5'), 0.5)), [XR, 636], [{ s: 'MULTIFIDE', c: 'cobalt', w: 700 }, { s: 'courts haubans segmentaires', size: 13, ls: 0.5 }], { a: k(T.lab[0] + 0.1), lc: 'cobalt', id: 's4lMF' });
     tag(ctx, S(RW(0.3, 0.5)(A)), [XL, 474], [{ s: 'GRAND DROIT', c: 'crimson', w: 700 }, { s: 'pubis → cartilages 5–7', size: 13, ls: 0.5 }], { a: k(T.lab[0] + 0.05), lc: 'crimson', align: 'right', id: 's4lRA' });
     tag(ctx, S(vlerp(A.v('L3', [40, 0]), A.wall(TA_U[2]), 0.72)), [XL, 600], [{ s: 'TRANSVERSE', c: 'cobalt', w: 700 }, { s: 'ceinture de la paroi', size: 13, ls: 0.5 }], { a: k(T.lab[0] + 0.15), lc: 'cobalt', align: 'right', id: 's4lTA' });
@@ -292,7 +292,7 @@
 
   function sagMech(ctx, F, cam, m) {
     const t = F.t;
-    const a = fio(t, T.mech[0], T.mech[1], 0.3, 0.35);
+    const a = fio(t, T.mech[0], 36.55, 0.3, 0.35);   // étiquettes en direct retirées pendant le retour de posture
     if (a <= 0.004 || !m) return;
     const k = (t0) => a * smooth(seg(t, t0, t0 + 0.3));
     const aL = k(33.05) * smooth(seg(m.load, 0, 6)), aW = k(33.15), aD = k(33.45), aE = k(33.7), aF = k(33.9), aM = k(34.1), aC = k(34.3);
@@ -466,13 +466,14 @@
       text(ctx, d, lx + 18, y + 22, { size: 13, c: 'white', a: ra, id: 's4p1d' + i });
     });
     let y = P.PY + 680;
-    y += P.wrap(ctx, nb('Sans haubans, le rachis lombaire ligamentaire isolé flambe sous ≈ 88 N (in vitro) : la stabilité vient des muscles.'), x, y, Wd, { size: 14, c: 'white', a: k(32.6), id: 's4p1m' });
+    y += P.wrap(ctx, nb('Sans haubans (muscles), le rachis lombaire isolé flambe sous ≈ 88 N (in vitro).'), x, y, Wd, { size: 14, c: 'white', a: k(32.45), id: 's4p1m' });
     P.cite(ctx, 'Crisco et al. 1992 · doi:10.1016/0268-0033(92)90004-N', x, P.PY + P.PH - 34, a);
   }
 
   /** Bloc 2 : équilibre des couples (valeurs calculées en direct). */
   function panelBalance(ctx, F, a, m) {
     const P = F.panel, t = F.t, x = P.PX + 30, Wd = P.PW - 60, R = ref();
+    if (t >= 36.2) m = R.m;   // retour de posture : le bloc reste à α = 30°, 20 kg (lignes α et charge comprises)
     P.header(ctx, 'ÉQUILIBRE DES COUPLES · L4–L5', 'antéflexion + charge', a, 's4p2', 'teal');
     const g = { size: 15, c: 'white', a, w: 600, id: '' };
     compo(ctx, ['M', { s: 'req', sub: true }, ' = W·d', { s: 'G', sub: true }, ' + P·d', { s: 'L', sub: true }], x, P.PY + 96, Object.assign({}, g, { id: 's4f1' }));
@@ -552,7 +553,7 @@
     let y = P.PY + 636;
     y += P.wrap(ctx, nb('Modèle statique plan. Force des extenseurs : résultante de tous les extenseurs sur la ligne d’action des faisceaux thoraciques (multifide ≈ 20 % du moment : Bogduk et al. 1992) ; C = composante normale au disque de W + P + forces musculaires.'), x, y, Wd, { size: 12, c: 'grey', a, id: 's4n1' });
     y += 6;
-    y += P.wrap(ctx, nb('Modèle EMG (10 sujets, soulevés) : cocontraction → compression +12 à 18 %, stabilité +34 à 64 % (Granata & Marras 2000, doi:10.1097/00007632-200006010-00012).'), x, y, Wd, { size: 12, c: 'grey', a: aB, id: 's4n2' });
+    y += P.wrap(ctx, nb('Modèle EMG : cocontraction → compression +12 à 18 %, stabilité +34 à 64 % (Granata & Marras 2000).'), x, y, Wd, { size: 12, c: 'grey', a: aB, id: 's4n2' });
   }
 
   // ---- courbe charge-déplacement L4–L5 (Panjabi ; Wilke et al. 1995)
@@ -629,10 +630,10 @@
       ctx.strokeStyle = rgba(col, 0.2 * ca); ctx.lineWidth = lw + 5; polyPath(ctx, q); ctx.stroke();
       ctx.strokeStyle = rgba(col, ca); ctx.lineWidth = lw; polyPath(ctx, q); ctx.stroke();
     };
-    const uP = E.io(seg(t, 37.35, 37.85)), uA = E.io(seg(t, 37.75, 38.25));
+    const uP = E.io(seg(t, 37.3, 37.7)), uA = E.io(seg(t, 37.55, 37.95));
     curve(false, uP, 'cyan', 2.4, ag);
     curve(true, uA, 'amber', 3, ag);
-    const lp = k(37.75), la = k(38.15);
+    const lp = k(37.5), la = k(37.85);
     for (const [col, s, ya, id, y] of [['cyan', 'passif (sans muscles)', lp, 's4cP', gy0 + 40], ['amber', 'avec forces musculaires', la, 's4cA', gy0 + 62]]) {
       ctx.strokeStyle = rgba(col, ya); ctx.lineWidth = 3; line(ctx, [gx0 + 12, y - 4], [gx0 + 30, y - 4]);
       text(ctx, s, gx0 + 38, y, { size: 13, c: col, a: ya, w: 600, id });
@@ -646,18 +647,18 @@
       ctx.lineTo(xb - d, (y0 + y1) / 2); ctx.lineTo(xb, (y0 + y1) / 2 + 4); ctx.lineTo(xb, y1 - 5); ctx.quadraticCurveTo(xb, y1, xb + d, y1); ctx.stroke();
     };
     const nzP = PJ.nz / 2, nzA = (PJ.nz / 2) * (1 - PJ.rNZ);
-    const bp = k(38.1), ba = k(38.35);
+    const bp = k(37.8), ba = k(37.95);
     brace(X(0) - 14, -nzP, nzP, 'cyan', bp, 1);
     text(ctx, 'ZN', X(0) - 24, Y(0) - 8, { size: 14, c: 'cyan', a: bp, align: 'right', w: 700, id: 's4zP' });
     brace(X(0) + 16, -Math.max(nzA, 0.18), Math.max(nzA, 0.18), 'amber', ba, -1);
     text(ctx, 'ZN ' + SC.MINUS + fr(PJ.rNZ * 100, 0) + ' %', X(0) + 30, Y(0) + 26, { size: 14, c: 'amber', a: ba, w: 700, bg: 0.75, id: 's4zA' });
     P.wrap(ctx, nb('Muscles (5 paires × 80 N) : amplitude ' + SC.MINUS + fr(PJ.rF * 100, 0) + ' % en flexion, ' + SC.MINUS + fr(PJ.rE * 100, 0) + ' % en extension, zone neutre ' + SC.MINUS + fr(PJ.rNZ * 100, 0) + ' %. Passif : schématique.'), x, gy1 + 40, Wd, { size: 12, c: 'grey', a: la, id: 's4gN' });
     // message final
-    const am = k(38.35);
+    const am = k(38.0);
     text(ctx, 'SYSTÈME ACTIF = HAUBANS MUSCULAIRES', x, P.PY + 562, { size: 20, c: 'amber', a: am, w: 700, ls: 1, id: 's4msg' });
     text(ctx, 'ils compensent la laxité du système passif', x, P.PY + 588, { size: 16, c: 'white', a: am, id: 's4msg2' });
     let y = P.PY + 620;
-    y += P.wrap(ctx, nb('Nuance : in vitro, la cocontraction psoas + multifide rigidifie le segment en inclinaison et en rotation, mais augmente de 13 % l’amplitude sagittale (Quint et al. 1998).'), x, y, Wd, { size: 12, c: 'grey', a: k(38.55), id: 's4q' });
+    y += P.wrap(ctx, nb('Nuance (in vitro) : cocontraction psoas + multifide → amplitude sagittale +13 % (Quint et al. 1998).'), x, y, Wd, { size: 12, c: 'grey', a: k(38.15), id: 's4q' });
     y += 10;
     P.cite(ctx, 'Panjabi 1992 I-II · doi:10.1097/00002517-199212000-00001, -00002 ; Wilke et al. 1995 · doi:10.1097/00007632-199501150-00011 ; Quint et al. 1998 · doi:10.1097/00007632-199809150-00003', x, y, a);
   }

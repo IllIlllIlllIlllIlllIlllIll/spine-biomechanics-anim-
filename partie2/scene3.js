@@ -38,12 +38,12 @@
   const T = {
     v0: 22.3, v1: 31.99,               // contenu sagittal de la scène
     psG: [22.6, 23.7], ilG: [22.95, 23.9], tdG: [23.35, 24.1],
-    psLab: [22.9, 24.7],               // étiquettes anatomiques du psoas
-    mech: [24.6, 27.0],                // mécanique au disque L4/L5
-    ante: [24.9, 27.45],               // antéversion pelvienne (flèche, PS, LL)
+    psLab: [22.9, 25.0],               // étiquettes anatomiques du psoas
+    mech: [24.6, 27.3],                // mécanique au disque L4/L5
+    ante: [25.05, 27.45],               // antéversion pelvienne (flèche, PS, LL)
     abd: [27.0, 29.55],                // paroi abdominale (étiquettes jusqu'à 29,55)
     retro: [29.45, 31.85],             // rétroversion, couples pelviens
-    p1: [22.0, 27.2], p2: [27.2, 31.9],
+    p1: [22.0, 27.45], p2: [27.5, 31.9],
   };
 
   // ------------------------------------------------------------------ couleurs
@@ -581,7 +581,7 @@
     text(ctx, frS(m.tilt, 1) + '°', lab[0], lab[1] + 24, { size: 18, c: 'white', a, w: 700, align: 'right', bg: 0.75, id: 's3tv' + mode });
     text(ctx, 'autour de l’axe des hanches', lab[0], lab[1] + 44, { size: 12, c: 'grey', a, align: 'right', bg: 0.75, id: 's3ta' + mode });
     // fémur fixe : encastrement symbolique au bas du champ
-    const fb = cam.w2s(vadd(A.hip(), [0, 80]));
+    const fb = cam.w2s(vadd(A.hip(), [-30, 80]));   // encastrement décalé vers l'avant : la flèche des ischio-jambiers reste libre
     ctx.strokeStyle = rgba('white', 0.75 * a); ctx.lineWidth = 2; line(ctx, [fb[0] - 34, fb[1]], [fb[0] + 34, fb[1]]);
     ctx.lineWidth = 1.2;
     for (let i = -3; i <= 3; i++) line(ctx, [fb[0] + i * 10 - 3, fb[1] + 2], [fb[0] + i * 10 - 9, fb[1] + 10]);
@@ -610,16 +610,16 @@
       text(ctx, val + '°', bx + bw - 14, y + 2, { size: 21, c: i === 0 ? 'white' : TEAL_L, a, w: 700, align: 'right', id: 's3bv' + i + mode });
     });
     // repère « L1 » au bout du plateau
-    tag(ctx, vadd(lb, vmul(v, 26)), [bx, 366], [{ s: 'plateau sup. de L1', size: 13, c: TEAL_L, ls: 0.3 }], { a, lc: 'teal', id: 's3L1' + mode });
-    tag(ctx, vadd(TP, vmul(u, 26)), [bx, 562], [{ s: 'plateau de S1', size: 13, c: TEAL_L, ls: 0.3 }], { a, lc: 'teal', id: 's3S1' + mode });
+    tag(ctx, vadd(lb, vmul(v, 26)), [bx, 366], [{ s: 'plateau sup. de L1', size: 14, c: TEAL_L, ls: 0.3 }], { a, lc: 'teal', id: 's3L1' + mode });
+    tag(ctx, vadd(TP, vmul(u, 26)), [bx, 612], [{ s: 'plateau de S1', size: 14, c: TEAL_L, ls: 0.3 }], { a, lc: 'teal', id: 's3S1' + mode });
   }
 
   /** Rétroversion : traction du grand droit, bras de levier, couple fléchisseur, couples pelviens. */
   function retroMech(ctx, F, cam, m) {
-    const t = F.t, a = fio(t, T.retro[0], T.retro[1], 0.3, 0.3);
+    const t = F.t, a = fio(t, T.retro[0], T.retro[1], 0.3, 0.2);
     if (a <= 0.004) return;
     const R = m.ra, k = (t0) => a * smooth(seg(t, t0, t0 + 0.3));
-    const aV = k(29.6), aD = k(29.85), aM = k(30.05), aC = k(30.2), aB = k(30.5);
+    const aV = k(29.6), aD = k(29.72), aM = k(29.85), aC = k(29.95), aB = k(30.05);
     const c = cam.w2s(R.c);
     // ligne d'action (corde pubis → thorax) et bras de levier autour de L4/L5
     MU.actionLine(ctx, cam, R.L.p, R.L.u, { a: aD, len: 230, col: 'teal' });
@@ -632,7 +632,7 @@
     if (aM > 0.004) {
       MU.momentArc(ctx, c, 40, 60, { a: aM, col: 'teal', start: -Math.PI / 2 + 0.25, Mref: 80, lw: 2.6 });
       dot(ctx, c, 5, 'bg', aM); ring(ctx, c, 5, 'teal', aM, 1.6);
-      tag(ctx, vadd(c, [40, -6]), [880, 600], [{ s: 'COUPLE FLÉCHISSEUR', c: TEAL_L, w: 700, size: 14 }, { s: 'antagoniste des érecteurs', size: 13, c: 'white', ls: 0.3 }],
+      tag(ctx, vadd(c, [40, -6]), [880, 560], [{ s: 'COUPLE FLÉCHISSEUR', c: TEAL_L, w: 700, size: 14 }, { s: 'antagoniste des érecteurs', size: 13, c: 'white', ls: 0.3 }],
         { a: aM, lc: 'teal', id: 's3rM' });
     }
     // traction du grand droit sur le pubis (vers le haut)
@@ -648,14 +648,14 @@
       // rétroversion : ischio-jambiers (non détaillés) sur la tubérosité ischiatique, vers le bas
       const it = S(A.pel('ischialTuber'));
       arrow(ctx, it, [it[0] + 4, it[1] + 44], 'white', 0.85 * aC, { lw: 3, head: 12, dash: [5, 4], outline: true });
-      tag(ctx, [it[0] + 3, it[1] + 22], [760, 972], [{ s: 'ischio-jambiers (non détaillés)', size: 13, c: 'white', ls: 0.3 }], { a: aC, lc: 'grey', id: 's3rH' });
+      tag(ctx, [it[0] + 3, it[1] + 8], [760, 935], [{ s: 'ischio-jambiers (non détaillés)', size: 14, c: 'white', ls: 0.3 }], { a: aC, lc: 'grey', id: 's3rH' });
       // antéversion (opposée) : érecteurs sur la crête sacrée / EIPS (vers le haut), psoas-iliaque (vers le bas, en avant de la hanche)
       const ps = S(A.pel('PSIS'));
       arrow(ctx, ps, [ps[0] + 6, ps[1] - 48], C_ES, 0.75 * aC, { lw: 2.6, head: 11, dash: [5, 4], outline: true });
-      tag(ctx, [ps[0] + 4, ps[1] - 26], [880, 700], [{ s: 'érecteurs', size: 13, c: mix(C_ES, 'white', 0.25), ls: 0.3 }], { a: 0.9 * aC, lc: C_ES, id: 's3rE' });
+      tag(ctx, [ps[0] + 4, ps[1] - 26], [880, 700], [{ s: 'érecteurs', size: 14, c: mix(C_ES, 'white', 0.25), ls: 0.3 }], { a: 0.9 * aC, lc: C_ES, id: 's3rE' });
       const em = S(A.pelN([-46, -6]));   // fosse iliaque (iliaque) ; l'EIAI est l'origine du droit fémoral
       arrow(ctx, em, [em[0] + 10, em[1] + 46], C_IL, 0.75 * aC, { lw: 2.6, head: 11, dash: [5, 4], outline: true });
-      tag(ctx, [em[0] + 5, em[1] + 24], [404, 668], [{ s: 'psoas-iliaque', size: 13, c: C_IL, ls: 0.3 }], { a: 0.9 * aC, align: 'right', lc: C_IL, id: 's3rP' });
+      tag(ctx, [em[0] + 5, em[1] + 24], [404, 668], [{ s: 'psoas-iliaque', size: 14, c: C_IL, ls: 0.3 }], { a: 0.9 * aC, align: 'right', lc: C_IL, id: 's3rP' });
       // légende des deux couples
       msgBox(ctx, 868, 768, 300, [
         { s: 'COUPLES AUTOUR DES HANCHES', c: 'white', w: 700, size: 13, ls: 1 },
@@ -813,7 +813,7 @@
       psoasMech(ctx, F, cam, m);
       const aA = fio(t, T.ante[0], T.ante[1], 0.3, 0.3);
       pelvisTilt(ctx, F, cam, m, aA, 'ante');
-      anteMessage(ctx, F, fio(t, 25.7, T.ante[1], 0.3, 0.3));
+      anteMessage(ctx, F, fio(t, 25.4, T.ante[1], 0.3, 0.3));
       retroMech(ctx, F, cam, m);
       pelvisTilt(ctx, F, cam, m, fio(t, 29.65, T.retro[1], 0.3, 0.3), 'retro');
     },
