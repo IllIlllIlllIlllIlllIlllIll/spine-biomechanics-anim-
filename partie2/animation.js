@@ -90,9 +90,10 @@
       const ua = E.io(seg(t, 5.5, 6.1));
       out.push({ name: 'axial', a: smooth(seg(t, 5.45, 5.8)), xf: [1, Math.max(0.002, ua), VCX, P2.cutY || VCY] });
     } else if (t < 8.5) {
-      const k = smooth(seg(t, 8.0, 8.5));
-      out.push({ name: 'axial', a: 1 - k, xf: [1, 1, VCX, VCY] });
-      out.push({ name: 'sag', a: k, xf: [1, 1, VCX, VCY] });
+      // retour symétrique de l'entrée : la coupe se replie sur son plan pendant que la vue sagittale revient
+      const fold = E.io(seg(t, 8.0, 8.35));
+      out.push({ name: 'axial', a: 1 - smooth(seg(t, 8.25, 8.45)), xf: [1, Math.max(0.002, 1 - fold), VCX, VCY] });
+      out.push({ name: 'sag', a: smooth(seg(t, 8.1, 8.45)), xf: [1, 1, VCX, VCY] });
     } else if (t < 18.0) out.push({ name: 'sag', a: 1, xf: [1, 1, VCX, VCY] });
     else if (t < 18.6) flip(18.0, 'sag', 'cor');
     else if (t < 22.0) out.push({ name: 'cor', a: 1, xf: [1, 1, VCX, VCY] });
@@ -163,12 +164,12 @@
     const g = ctx.createRadialGradient(W * 0.42, H * 0.5, 380, W * 0.5, H * 0.5, 1250);
     g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.5)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    const top = ctx.createLinearGradient(0, 0, 0, 185);
-    top.addColorStop(0, rgba('bg', 0.94)); top.addColorStop(0.62, rgba('bg', 0.75)); top.addColorStop(1, rgba('bg', 0));
-    ctx.fillStyle = top; ctx.fillRect(0, 0, W, 185);
-    const bot = ctx.createLinearGradient(0, H - 120, 0, H);
-    bot.addColorStop(0, rgba('bg', 0)); bot.addColorStop(0.6, rgba('bg', 0.85)); bot.addColorStop(1, rgba('bg', 0.95));
-    ctx.fillStyle = bot; ctx.fillRect(0, H - 120, W, 120);
+    const top = ctx.createLinearGradient(0, 0, 0, 200);
+    top.addColorStop(0, rgba('bg', 0.95)); top.addColorStop(0.62, rgba('bg', 0.9)); top.addColorStop(1, rgba('bg', 0));
+    ctx.fillStyle = top; ctx.fillRect(0, 0, W, 200);
+    const bot = ctx.createLinearGradient(0, H - 140, 0, H);
+    bot.addColorStop(0, rgba('bg', 0)); bot.addColorStop(0.55, rgba('bg', 0.88)); bot.addColorStop(1, rgba('bg', 0.96));
+    ctx.fillStyle = bot; ctx.fillRect(0, H - 140, W, 140);
   }
   function drawHUD(ctx, S, mainView, cam) {
     const t = S.t;
@@ -187,7 +188,7 @@
     let x = 1840;
     for (let k = LEGEND.length - 1; k >= 0; k--) {
       const [c, s] = LEGEND[k];
-      const w = text(ctx, s, x, 142, { size: 11, c: 'grey', a: 1, align: 'right', ls: 1, id: 'leg' + k });
+      const w = text(ctx, s, x, 142, { size: 12, c: 'grey', a: 1, align: 'right', ls: 0.5, id: 'leg' + k });
       ctx.fillStyle = rgba(c, 1); ctx.fillRect(x - w - 18, 133, 10, 10);
       x -= w + 34;
     }
@@ -259,7 +260,8 @@
     for (const v of S.views) {
       const view = v.name === 'sag' ? null : P2.views[v.name];
       const cam = v.name === 'sag' ? camSag : view && view.camera ? view.camera(F) : camSag;
-      if (v.a > mainA) { mainA = v.a; main = v.name; mainCam = cam; }
+      const vis = v.a * v.xf[0] * v.xf[1];   // HUD de la vue la plus visible (opacité × dépliement)
+      if (vis > mainA) { mainA = vis; main = v.name; mainCam = cam; }
       const [sx, sy, cx, cy] = v.xf;
       ctx.save();
       ctx.translate(cx, cy); ctx.scale(sx, sy); ctx.translate(-cx, -cy);

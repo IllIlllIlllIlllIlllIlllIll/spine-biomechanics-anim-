@@ -14,6 +14,15 @@
   'use strict';
   const SC = root.SpineCore || (typeof require === 'function' ? require('../lib/core.js') : null);
   const P2 = (root.P2 = root.P2 || {});
+
+  // Texte secondaire : le gris des tracés (#5a6b80, 3,4:1 sur le fond) est trop sombre pour du texte de 12–13 px.
+  // Partie 2 seulement : les textes demandés en 'grey' utilisent 'greyT' (5,3:1) ; les tracés gardent 'grey'.
+  if (!SC.text.__greyT) {
+    SC.addColors({ greyT: '#7a8ba1' });
+    const _text = SC.text;
+    SC.text = (ctx, s, x, y, o) => _text(ctx, s, x, y, o && o.c === 'grey' ? Object.assign({}, o, { c: 'greyT' }) : o);
+    SC.text.__greyT = true;
+  }
   const {
     DEG, clamp, lerp, smooth, vadd, vsub, vmul, vlen, vnorm, vlerp, vrot, vrotAbout, perp, toW, toL,
     LV, IX, NL, NS, sAt, WLUM, WTHO, WCER, A_L, A_T, A_C, TARGET, SAC_LEN, SAC_KYPH, integrate,

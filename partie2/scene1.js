@@ -288,11 +288,12 @@
       dot(ctx, m, r, COBALT_L, 0.95 * a);
       dot(ctx, m, 1.6, 'white', a);
     }
-    const la = fio(t, 1.4, 3.1, 0.35, 0.4);
+    // origine (bord inférieur des épineuses) puis terminaison (processus mamillaires) : les deux faisceaux de traits ne coexistent pas
+    const lo = fio(t, 1.2, 2.45, 0.3, 0.3), lm = fio(t, 2.3, 3.55, 0.3, 0.35);
     const mL2 = cam.w2s(A.mam('L2')), mL3 = cam.w2s(A.mam('L3')), mL4 = cam.w2s(A.mam('L4'));
-    tag(ctx, mL3, [884, mL2[1] - 52], [{ s: 'PROCESSUS MAMILLAIRES', c: COBALT_L }], { a: la, lc: COBALT_L, size: 15, id: 's1-mam', more: [mL2, mL4] });
+    tag(ctx, mL3, [884, mL2[1] - 52], [{ s: 'PROCESSUS MAMILLAIRES', c: COBALT_L }], { a: lm, lc: COBALT_L, size: 15, id: 's1-mam', more: [mL2, mL4] });
     const s3 = cam.w2s(A.spinInf('L3', 0.55)), s2 = cam.w2s(A.spinInf('L2', 0.55)), s4 = cam.w2s(A.spinInf('L4', 0.55));
-    tag(ctx, s3, [884, s3[1] + 58], [{ s: 'BORD INFÉRIEUR DES ÉPINEUSES', c: COBALT_L }], { a: la, lc: COBALT_L, size: 15, id: 's1-spi', more: [s2, s4] });
+    tag(ctx, s3, [884, s3[1] + 58], [{ s: 'BORD INFÉRIEUR DES ÉPINEUSES', c: COBALT_L }], { a: lo, lc: COBALT_L, size: 15, id: 's1-spi', more: [s2, s4] });
   }
 
   function drawMultifidus(ctx, F, cam) {
@@ -323,7 +324,7 @@
     if (a <= 0.004) return;
     const R = mfMech(F.A), D = R.D, W = (p) => cam.w2s(p);
     const cS = W(R.c);
-    const a1 = a * smooth(seg(t, 3.6, 3.95)), a2 = a * smooth(seg(t, 3.85, 4.2)), a3 = a * smooth(seg(t, 4.1, 4.45));
+    const a1 = a * smooth(seg(t, 3.6, 3.95)), a2 = a * smooth(seg(t, 3.85, 4.2)), a3 = a * smooth(seg(t, 3.9, 4.2));
     // plan discal moyen L4/L5 et normale n̂
     ctx.setLineDash([6, 5]); ctx.strokeStyle = rgba('white', 0.6 * a1); ctx.lineWidth = 1.4;
     line(ctx, W(vadd(R.c, vmul(D.post, -34))), W(vadd(R.c, vmul(D.post, 92)))); ctx.setLineDash([]);
@@ -363,11 +364,11 @@
     const tS = W(tip);
     text(ctx, 'F', tS[0] + 14, tS[1] + 4, { size: 18, c: TEAL_L, a: a3, w: 700, bg: 0.75, id: 's1-F' });
     const cTS = W(cTip);
-    tag(ctx, cTS, [884, cTS[1] - 4], [{ s: 'Fc  COMPRESSION ' + Math.round(R.comp * 100) + ' % de F', c: TEAL_L, w: 700 }], { a: a3, lc: 'teal', size: 15, id: 's1-fc' });
+    // composantes F·cos θ et F·sin θ (θ = angle entre F et la normale) : facteurs, non additifs
+    tag(ctx, cTS, [884, cTS[1] - 4], [{ s: 'Fc  COMPRESSION  ' + fr(R.comp, 2) + ' F', c: TEAL_L, w: 700 }], { a: a3, lc: 'teal', size: 15, id: 's1-fc' });
     const sTS = W(sTip);
-    tag(ctx, sTS, [884, cTS[1] + 50], [{ s: 'Fs  CISAILLEMENT ' + Math.round(Math.abs(R.shear) * 100) + ' % de F', c: TEAL_L, w: 700 },
-      { s: R.shear > 0 ? 'dirigé vers l’avant : n’oppose pas' : 'dirigé vers l’arrière', c: 'white', size: 14, w: 400 },
-      { s: R.shear > 0 ? 'le cisaillement antérieur' : '', c: 'white', size: 14, w: 400 }], { a: a3, lc: 'teal', size: 15, id: 's1-fs' });
+    tag(ctx, sTS, [884, cTS[1] - 50], [{ s: 'Fs  CISAILLEMENT  ' + fr(Math.abs(R.shear), 2) + ' F', c: TEAL_L, w: 700 },
+      { s: R.shear > 0 ? 'faible, vers l’avant' : 'faible, vers l’arrière', c: 'white', size: 14, w: 400 }], { a: a3, lc: 'teal', size: 15, id: 's1-fs' });
   }
 
   function drawCut(ctx, F, cam) {
@@ -488,12 +489,6 @@
     const tS = W(top), pS = W(cen);
     text(ctx, 'DÉCHARGE AXIALE', tS[0] - 22, tS[1] + 14, { size: 16, c: TEAL_L, a: da, align: 'right', w: 700, bg: 0.8, id: 's1-dech' });
     text(ctx, 'PIA', pS[0], pS[1] + 8, { size: 22, c: 'white', a: la, align: 'center', w: 700, ls: 2, bg: 0.6, id: 's1-pia' });
-    // encart chiffré (modèle)
-    const x = 96, y = 640;
-    text(ctx, '−18 à −31 % de compression', x, y, { size: 19, c: TEAL_L, a: da, w: 700, bg: 0.75, id: 's1-dc1' });
-    text(ctx, '(modèle, PIA 5 → 10 kPa) · Stokes 2010', x, y + 24, { size: 13, c: 'grey', a: da, bg: 0.75, id: 's1-dc2' });
-    text(ctx, '+ raideur du tronc', x, y + 58, { size: 17, c: 'white', a: da, w: 600, bg: 0.75, id: 's1-dc3' });
-    text(ctx, 'sans hausse de compression · Ludvig 2019', x, y + 80, { size: 13, c: 'grey', a: da, bg: 0.75, id: 's1-dc4' });
   }
 
   // ===========================================================================
@@ -680,7 +675,7 @@
     text(ctx, 'PIA ↑', 1050, 362, { size: 14, c: TEAL_L, a: base * smooth(seg(pk, 0.02, 0.2)), w: 700, bg: 0.75, id: 'ax-piaup' });
     L([16, -9], [1050, 446], [{ s: 'CORPS', c: 'white' }, { s: 'VERTÉBRAL L3', c: 'white' }], { a: base, lc: 'cyan', align: 'left', id: 'ax-body' });
     L([44, -6], [1050, 548], [{ s: 'PSOAS', c: mix('crimson', 'white', 0.35) }], { a: base, lc: 'crimson', align: 'left', id: 'ax-pso' });
-    L(FTL.post[Math.round(FTL.post.length * 0.62)], [1050, 640], [{ s: 'FTL', c: 'white', w: 700 }, { s: '(3 FEUILLETS)', c: 'white' }],
+    L(FTL.post[Math.round((FTL.post.length - 1) * 0.94)], [1050, 640], [{ s: 'FTL', c: 'white', w: 700 }, { s: '(3 FEUILLETS)', c: 'white' }],
       { a: aF, lc: 'white', align: 'left', id: 'ax-ftl', more: [W(FTL.mid[Math.round(FTL.mid.length * 0.5)]), W(FTL.ant[Math.round(FTL.ant.length * 0.55)])] });
     L([66, 52], [1050, 760], [{ s: 'ÉRECTEURS', c: mix('amber', 'white', 0.3) }, { s: 'longissimus', c: 'grey', size: 13, w: 400 }, { s: '+ iliocostal', c: 'grey', size: 13, w: 400 }], { a: base, lc: 'amber', align: 'left', id: 'ax-es' });
     // bas
@@ -693,43 +688,28 @@
   };
 
   // ===========================================================================
-  //  PANNEAU (blocs séquentiels : 0,6–1,75 · 1,8–5,3 · 5,4–8,2 · 8,25–9,9)
+  //  PANNEAU (blocs séquentiels : 0,9–5,3 · 5,4–8,2 · 8,25–9,95)
   // ===========================================================================
-  function panelIntro(ctx, F, a) {
-    const P = F.panel, x = P.PX + 30, maxW = P.PW - 60, t = F.t;
-    P.header(ctx, 'STABILISATEURS LOCAUX', 'système local · Bergmark 1989', a, 'p1i');
-    let y = P.PY + 106;
-    y += P.wrap(ctx, 'Muscles profonds à insertions segmentaires : ils règlent la raideur et la position de chaque segment mobile, plus que le mouvement global du tronc.', x, y, maxW, { size: 15, c: 'white', a, lh: 23, id: 'p1i-t' });
-    y += 26;
-    const items = [
-      ['MULTIFIDE', 'bandes segmentaires L1 → sacrum'],
-      ['TRANSVERSE DE L’ABDOMEN', 'sangle circulaire la plus profonde'],
-      ['FASCIA THORACO-LOMBAIRE', 'relais vers le rachis (raphé latéral)'],
-      ['PRESSION INTRA-ABDOMINALE', 'enceinte pressurisée (effet corset)'],
-    ];
-    items.forEach(([h, s], k) => {
-      const ia = a * smooth(seg(t, 0.75 + k * 0.12, 1.05 + k * 0.12));
-      const yy = y + k * 62;
-      ctx.fillStyle = rgba('cobalt', ia); ctx.fillRect(x, yy - 12, 10, 10);
-      text(ctx, h, x + 22, yy, { size: 15, c: COBALT_L, a: ia, w: 700, ls: 1, id: 'p1i-h' + k });
-      text(ctx, s, x + 22, yy + 22, { size: 14, c: 'grey', a: ia, id: 'p1i-s' + k });
-    });
-  }
-
   function panelMultifidus(ctx, F, a) {
     const P = F.panel, x = P.PX + 30, maxW = P.PW - 60, t = F.t;
     P.header(ctx, 'MULTIFIDE', 'stabilisateur segmentaire', a, 'p1m', COBALT_L);
     let y = P.PY + 100;
     const rows = [
-      ['ORIGINE', 'processus épineux (bord inférieur) et lames de L1 à L5', 1.9],
-      ['TERMINAISON', 'processus mamillaires 2 à 5 niveaux plus bas, face dorsale du sacrum, EIPS', 2.2],
-      ['INNERVATION', 'unisegmentaire : chaque bande reçoit le rameau médial d’une seule branche dorsale', 2.5],
-      ['ACTION', 'rotation sagittale postérieure (extension segmentaire), sans action de translation', 2.8],
+      ['ORIGINE', 'processus épineux (bord inférieur) et lames de L1 à L5', 1.2],
+      ['TERMINAISON', 'processus mamillaires 2 à 5 niveaux plus bas, face dorsale du sacrum, EIPS', 1.55],
+      ['INNERVATION', 'unisegmentaire : chaque bande reçoit le rameau médial d’une seule branche dorsale', 1.9],
+      ['ACTION', 'rotation sagittale postérieure (extension segmentaire), sans action de translation', 2.25],
     ];
     for (const [l, v, t0] of rows) {
       const ra = a * smooth(seg(t, t0, t0 + 0.3));
       y += P.attachRow(ctx, l, v, x, y, ra, { id: 'p1m-' + l, lc: l === 'ACTION' ? COBALT_L : 'grey' }) + 12;
     }
+    // ordres de grandeur (lus avant le calcul)
+    const na = a * smooth(seg(t, 2.6, 2.9));
+    y += P.wrap(ctx, '≈ 20 % du moment extenseur en L4–L5', x, y, maxW, { size: 14, c: 'white', a: na, id: 'p1m-n1' });
+    y += P.wrap(ctx, 'Groupe le plus influent sur la stabilité du segment (in vitro)', x, y, maxW, { size: 14, c: 'white', a: na, id: 'p1m-n2' });
+    y += 4;
+    y += P.cite(ctx, 'Macintosh et al. 1986 ; Macintosh & Bogduk 1986 · Bogduk et al. 1992 · Wilke et al. 1995', x, y, na);
     // ---- valeurs calculées (géométrie neutre de la frame)
     const ma = a * smooth(seg(t, 3.65, 4.0));
     if (ma <= 0.004) return;
@@ -745,26 +725,19 @@
     text(ctx, '(' + R.n + ' faisceaux qui enjambent L4/L5)', x + 210, y + 10, { size: 13, c: 'grey', a: ma, id: 'p1m-dl2' });
     y += 34;
     const bars = [
-      ['COMPRESSION', R.comp, '⊥ plateaux'],
-      ['CISAILLEMENT', Math.abs(R.shear), R.shear > 0 ? 'vers l’avant' : 'vers l’arrière'],
+      ['COMPRESSION', R.comp, 'F·cos θ ⊥ plateau'],
+      ['CISAILLEMENT', Math.abs(R.shear), 'F·sin θ ' + (R.shear > 0 ? 'vers l’avant' : 'vers l’arrière')],
     ];
     bars.forEach(([l, v, s], k) => {
-      const yy = y + k * 34, bx = x + 150, bw = 200;
+      const yy = y + k * 34, bx = x + 140, bw = 140;
       text(ctx, l, x, yy, { size: 13, c: 'white', a: ma, ls: 1, id: 'p1m-bl' + k });
       ctx.fillStyle = rgba('grey', 0.25 * ma); ctx.fillRect(bx, yy - 11, bw, 12);
-      ctx.fillStyle = rgba('teal', 0.85 * ma); ctx.fillRect(bx, yy - 11, bw * clamp(v) * smooth(seg(t, 4.1, 4.6)), 12);
-      text(ctx, Math.round(v * 100) + ' %', bx + bw + 12, yy, { size: 15, c: TEAL_L, a: ma, w: 700, id: 'p1m-bv' + k });
+      ctx.fillStyle = rgba('teal', 0.85 * ma); ctx.fillRect(bx, yy - 11, bw * clamp(v) * smooth(seg(t, 3.9, 4.4)), 12);
+      text(ctx, fr(v, 2) + ' F', bx + bw + 12, yy, { size: 15, c: TEAL_L, a: ma, w: 700, id: 'p1m-bv' + k });
       text(ctx, s, x + maxW, yy, { size: 12, c: 'grey', a: ma, align: 'right', id: 'p1m-bs' + k });
     });
     y += 64;
-    text(ctx, 'de F · angle F / n̂ = ' + fr(R.ang, 1) + '° · force relative (sans valeur en N)', x, y, { size: 12, c: 'grey', a: ma, id: 'p1m-ang' });
-    y += 30;
-    const na = a * smooth(seg(t, 4.3, 4.7));
-    y += P.wrap(ctx, '≈ 20 % du moment extenseur en L4–L5', x, y, maxW, { size: 14, c: 'white', a: na, id: 'p1m-n1' });
-    y += P.wrap(ctx, 'Effet dominant sur la zone neutre (in vitro)', x, y, maxW, { size: 14, c: 'white', a: na, id: 'p1m-n2' });
-    y += P.wrap(ctx, 'Cisaillement faible et antérieur : pas d’opposition directe au cisaillement', x, y, maxW, { size: 14, c: 'white', a: na, id: 'p1m-n3' });
-    y += 8;
-    P.cite(ctx, 'Macintosh & Bogduk 1986 · Bogduk, Macintosh & Pearcy 1992 · Wilke et al. 1995', x, y, na);
+    text(ctx, 'θ = ' + fr(R.ang, 1) + '° entre F et la normale au disque · force relative', x, y, { size: 12, c: 'grey', a: ma, id: 'p1m-ang' });
   }
 
   function panelTransverse(ctx, F, a) {
@@ -772,23 +745,9 @@
     P.header(ctx, 'TRANSVERSE + FTL', 'effet corset', a, 'p1t', COBALT_L);
     let y = P.PY + 100;
     const ra = (t0) => a * smooth(seg(t, t0, t0 + 0.3));
-    text(ctx, 'ORIGINES', x, y, { size: 12, c: 'grey', a: ra(5.5), ls: 1.5, w: 700, id: 'p1t-oL' });
-    y += 22;
-    const orig = [
-      ['face interne des cartilages costaux 7 à 12', 5.55],
-      ['FTL : feuillet moyen → processus costiformes, via le raphé latéral', 5.7],
-      ['2/3 antérieurs de la lèvre interne de la crête iliaque', 5.85],
-      ['tiers latéral du ligament inguinal', 6.0],
-    ];
-    orig.forEach(([s, t0], k) => {
-      const oa = ra(t0);
-      ctx.fillStyle = rgba('cobalt', oa); ctx.fillRect(x, y - 9, 6, 6);
-      y += P.wrap(ctx, s, x + 16, y, maxW - 16, { size: 14, c: 'white', a: oa, id: 'p1t-o' + k }) + 4;
-    });
-    y += 6;
-    y += P.attachRow(ctx, 'TERMINAISON', 'ligne blanche (via la gaine du grand droit)', x, y, ra(6.15), { id: 'p1t-term' }) + 12;
-    y += P.attachRow(ctx, 'FASCIA THORACO-LOMBAIRE', '3 feuillets — postérieur (épineuses), moyen (processus costiformes), antérieur (devant le carré des lombes) — réunis au raphé latéral', x, y, ra(6.35), { id: 'p1t-ftl' }) + 12;
-    y += P.attachRow(ctx, 'EFFET CORSET', 'contraction → tension circonférentielle → PIA ↑ et mise en tension du FTL', x, y, ra(6.8), { id: 'p1t-cor', lc: COBALT_L }) + 10;
+    y += P.attachRow(ctx, 'ORIGINES', 'cartilages costaux 7–12 · FTL (raphé latéral) · crête iliaque · ligament inguinal', x, y, ra(5.5), { id: 'p1t-orig' }) + 12;
+    y += P.attachRow(ctx, 'TERMINAISON', 'ligne blanche', x, y, ra(5.75), { id: 'p1t-term' }) + 12;
+    y += P.attachRow(ctx, 'EFFET CORSET', 'contraction → tension circonférentielle → PIA ↑ et mise en tension du FTL', x, y, ra(6.4), { id: 'p1t-cor', lc: COBALT_L }) + 14;
     // jauge de PIA (illustrative) et raccourcissement calculé
     const ga = ra(6.85);
     if (ga <= 0.004) return;
@@ -809,7 +768,7 @@
     text(ctx, fr(kpa, 1) + ' kPa', x + maxW, y - 4, { size: 20, c: 'white', a: ga, align: 'right', w: 600, id: 'p1t-kpa' });
     text(ctx, Math.round(kpa * KPA_MMHG) + ' mmHg', x + maxW, y + 18, { size: 14, c: 'grey', a: ga, align: 'right', id: 'p1t-mmhg' });
     y += 46;
-    text(ctx, 'valeurs indicatives (repos ≈ 0,5 kPa → contraction ≈ 5 kPa)', x, y, { size: 12, c: 'grey', a: ga, id: 'p1t-ind' });
+    text(ctx, 'valeurs indicatives : repos ≈ 0,5 kPa → contraction ≈ 5 kPa', x, y, { size: 12, c: 'grey', a: ga, id: 'p1t-ind' });
   }
 
   function panelUnload(ctx, F, a) {
@@ -818,26 +777,28 @@
     let y = P.PY + 104;
     const chain = ['CONTRACTION DU TRANSVERSE', 'PIA ↑ : ENCEINTE PRESSURISÉE', 'POUSSÉE SUR DIAPHRAGME ET PLANCHER', 'DÉCHARGE PARTIELLE DU RACHIS'];
     chain.forEach((c, k) => {
-      const ca = a * smooth(seg(t, 8.3 + k * 0.15, 8.6 + k * 0.15));
+      const ca = a * smooth(seg(t, 8.3 + k * 0.08, 8.55 + k * 0.08));
       const yy = y + k * 52;
       ctx.strokeStyle = rgba('teal', 0.7 * ca); ctx.lineWidth = 1.2; ctx.strokeRect(x + 0.5, yy - 23.5, maxW, 34);
       text(ctx, c, x + 16, yy, { size: 14, c: 'white', a: ca, w: 600, ls: 0.5, id: 'p1d-c' + k });
       if (k < chain.length - 1) arrow(ctx, [x + maxW / 2, yy + 11], [x + maxW / 2, yy + 28], 'teal', ca, { lw: 2, head: 8, noGlow: true });
     });
     y += chain.length * 52 + 34;
-    const va = a * smooth(seg(t, 8.9, 9.25));
+    const va = a * smooth(seg(t, 8.55, 8.8));
     text(ctx, '−18 à −31 %', x, y, { size: 34, c: TEAL_L, a: va, w: 700, id: 'p1d-v' });
     y += 28;
     text(ctx, 'de compression rachidienne', x, y, { size: 15, c: 'white', a: va, id: 'p1d-v2' });
     y += 22;
-    text(ctx, 'selon modèle · PIA 5 → 10 kPa', x, y, { size: 13, c: 'grey', a: va, id: 'p1d-v3' });
+    text(ctx, 'modèle : PIA 5 → 10 kPa, efforts de 60 N·m', x, y, { size: 13, c: 'grey', a: va, id: 'p1d-v3' });
     y += 20;
     y += P.cite(ctx, 'Stokes, Gardner-Morse & Henry 2010, Clin Biomech', x, y, va);
     y += 22;
-    const sa = a * smooth(seg(t, 9.1, 9.4));
+    const sa = a * smooth(seg(t, 8.75, 9.0));
     text(ctx, '+ RAIDEUR DU TRONC', x, y, { size: 20, c: 'white', a: sa, w: 700, id: 'p1d-s' });
     y += 24;
-    text(ctx, 'sans hausse de compression (modèle)', x, y, { size: 14, c: 'white', a: sa, id: 'p1d-s2' });
+    text(ctx, 'ceinture lombaire : moins d’activité abdominale', x, y, { size: 14, c: 'white', a: sa, id: 'p1d-s2' });
+    y += 20;
+    text(ctx, 'in vivo ; effet attribué à la PIA (hypothèse)', x, y, { size: 13, c: 'grey', a: sa, id: 'p1d-s3' });
     y += 22;
     P.cite(ctx, 'Ludvig et al. 2019, Clin Biomech', x, y, sa);
   }
@@ -881,13 +842,11 @@
     panel(ctx, F, pa) {
       const t = F.t;
       if (t > 9.95 || pa <= 0.004) return;
-      const a0 = pa * fio(t, 0.6, 1.75, 0.4, 0.25);
-      if (a0 > 0.004) panelIntro(ctx, F, a0);
-      const a1 = pa * fio(t, 1.8, 5.3, 0.3, 0.3);
+      const a1 = pa * fio(t, 0.9, 5.3, 0.3, 0.3);
       if (a1 > 0.004) panelMultifidus(ctx, F, a1);
       const a2 = pa * fio(t, 5.4, 8.2, 0.3, 0.3);
       if (a2 > 0.004) panelTransverse(ctx, F, a2);
-      const a3 = pa * fio(t, 8.25, 9.9, 0.3, 0.3);
+      const a3 = pa * fio(t, 8.25, 9.95, 0.3, 0.2);
       if (a3 > 0.004) panelUnload(ctx, F, a3);
     },
   });

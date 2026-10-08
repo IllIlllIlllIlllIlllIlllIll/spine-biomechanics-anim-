@@ -130,7 +130,7 @@
     }
     return { p: vmul(pm, 1 / ws), u: vnorm(um) };
   }
-  /** Bras de levier signé (mm) d'une ligne (p, u) autour du centre c ; + = moment extenseur si u pointe vers le haut côté postérieur. */
+  /** Bras de levier signé (mm) d'une ligne (p, u) autour du centre c ; + = moment extenseur quand u (traction exercée sur le segment sus-jacent) pointe vers le bas du côté postérieur. */
   function momentArm(c, p, u) { const d = vsub(p, c); return d[0] * u[1] - d[1] * u[0]; }
   /** Pied de la perpendiculaire de c sur la ligne (p, u). */
   function foot(c, p, u) { return vadd(p, vmul(u, vdot(vsub(c, p), u))); }
