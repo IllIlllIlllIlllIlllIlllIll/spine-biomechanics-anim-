@@ -201,7 +201,7 @@
   // GRAND DROIT : crête et symphyse pubiennes → cartilages 5–7 et processus xiphoïde
   const RA_U = [0.9, 0.75, 0.58, 0.42, 0.27, 0.13];
   const raFas = (orig, ins, off, w) => ({
-    path: [orig, ...RA_U.map((u) => wallOff(u, off)), ins], w, fibers: 3, loa: [0, RA_U.length + 1],
+    path: [orig, ...RA_U.map((u) => wallOff(u, off)), ins], w, fibers: 3, loa: [0, 3], // ligne d'action : pubis → paroi en regard de L4–L5
   });
   const pubCrest = (k) => (A) => vlerp(A.pel('symphysisTop'), A.pel('pubicTubercle'), k);
   const RA = {
@@ -273,8 +273,8 @@
     return { c, D, L, d, comp, shear, ang, lines, foot: MU.foot(c, L.p, L.u), M: (F_PS * d) / 1000 };
   }
   /**
-   * Grand droit : ligne d'action = résultante des droites origine (pubis) →
-   * terminaison (xiphoïde, cartilages 7, 6, 5) — modèle rectiligne. Force sur
+   * Grand droit : ligne d'action = résultante des segments pubis → paroi à
+   * hauteur de l'ombilic (trajet du muscle en regard de L4–L5). Force sur
    * le tronc dirigée vers le pubis ; force sur le bassin dirigée vers le haut.
    */
   function mechRectus(A, G) {
@@ -286,6 +286,12 @@
     const dHip = MU.momentArm(hip, pub, L.u);            // > 0 : rotation horaire écran = rétroversion
     return { c, L, d, foot: MU.foot(c, L.p, L.u), pub, dHip, hip };
   }
+  /** Mécanique du psoas au bassin neutre (valeurs affichées : stables pendant l'antéversion). */
+  let PS_N = null;
+  const psN = () => PS_N || (PS_N = (() => {
+    const G0 = P2.anatomy.sagittal({ pelvicTilt: 0, lumbarFlex: 0, hipFlex: 0 });
+    return mechPsoas(P2.anatomy.anchors(G0), G0);
+  })());
   function mechAll(F) {
     if (F.M.s3) return F.M.s3;
     const ps = mechPsoas(F.A, F.G), ra = mechRectus(F.A, F.G);
@@ -486,8 +492,9 @@
     MU.actionLine(ctx, cam, P.L.p, P.L.u, { a: aR, len: 190, col: 'teal' });
     if (aD > 0.004) {
       MU.leverDim(ctx, cam, P.c, P.L.p, P.L.u, { a: aD, label: false });
-      tag(ctx, vadd(c, [-6, -4]), [404, 372], [{ s: 'd = ' + fr(Math.abs(P.d) / 10, 1) + ' cm', c: TEAL_L, w: 700, size: 16 },
-        { s: 'bras de levier ' + (P.d < 0 ? 'fléchisseur' : 'extenseur'), size: 13, c: 'white', ls: 0.3 },
+      const N = psN();
+      tag(ctx, vadd(c, [-6, -4]), [404, 372], [{ s: 'd = ' + fr(Math.abs(N.d) / 10, 1) + ' cm', c: TEAL_L, w: 700, size: 16 },
+        { s: 'bras de levier ' + (N.d < 0 ? 'fléchisseur' : 'extenseur') + ' (bassin neutre)', size: 13, c: 'white', ls: 0.3 },
         { s: 'la résultante passe près du disque', size: 12, c: 'grey', ls: 0 }], { a: aD, align: 'right', lc: 'teal', id: 's3md' });
     }
     // plan du disque L4/L5 et encart de décomposition (force illustrative)
@@ -496,7 +503,7 @@
       ctx.strokeStyle = rgba('white', 0.8 * aV); ctx.lineWidth = 1.6;
       line(ctx, cam.w2s(vadd(P.c, vmul(tt, 26))), cam.w2s(vadd(P.c, vmul(tt, -26))));
       dot(ctx, c, 5, 'bg', aV); ring(ctx, c, 5, 'white', aV, 1.5);
-      drawInset(ctx, P, 96, 452, aV, t);
+      drawInset(ctx, psN(), 96, 452, aV, t);
       ctx.setLineDash([3, 5]); ctx.strokeStyle = rgba('grey', 0.8 * aV); ctx.lineWidth = 1;
       line(ctx, [414, 470], vadd(c, [-7, -2])); ctx.setLineDash([]);
     }
@@ -548,10 +555,10 @@
     const xl = x0 + 14, y1 = y0 + 162;
     compo(ctx, ['F', { s: 'psoas', sub: true }, ' = ' + frN(F_PS) + ' N'], xl, y1, { size: 14, c: C_TXT, a, w: 700, id: 's3iFv' });
     text(ctx, 'illustratif', x0 + w - 14, y1, { size: 12, c: 'grey', a, align: 'right', id: 's3iFi' });
-    text(ctx, 'C = ' + frN(F_PS * P.comp) + ' N · ' + Math.round(P.comp * 100) + ' %', xl, y1 + 24, { size: 14, c: 'white', a, w: 700, id: 's3iCv' });
-    text(ctx, 'compression', x0 + w - 14, y1 + 24, { size: 12, c: 'grey', a, align: 'right', id: 's3iCi' });
-    text(ctx, 'S = ' + frN(F_PS * Math.abs(P.shear)) + ' N · ' + Math.round(Math.abs(P.shear) * 100) + ' %', xl, y1 + 48, { size: 14, c: TEAL_L, a, w: 700, id: 's3iSv' });
-    text(ctx, 'cisaillement ' + (P.shear > 0 ? 'ant.' : 'post.'), x0 + w - 14, y1 + 48, { size: 12, c: 'grey', a, align: 'right', id: 's3iSi' });
+    text(ctx, 'C = ' + frN(F_PS * P.comp) + ' N', xl, y1 + 24, { size: 14, c: 'white', a, w: 700, id: 's3iCv' });
+    text(ctx, 'compression · F·cos θ', x0 + w - 14, y1 + 24, { size: 12, c: 'grey', a, align: 'right', id: 's3iCi' });
+    text(ctx, 'S = ' + frN(F_PS * Math.abs(P.shear)) + ' N', xl, y1 + 48, { size: 14, c: TEAL_L, a, w: 700, id: 's3iSv' });
+    text(ctx, 'cisaillement ' + (P.shear > 0 ? 'ant.' : 'post.') + ' · F·sin θ', x0 + w - 14, y1 + 48, { size: 12, c: 'grey', a, align: 'right', id: 's3iSi' });
   }
 
   /** Flèche de rotation du bassin autour de la hanche, PS et LL en direct, fémur fixe. */
@@ -596,7 +603,7 @@
     ctx.fillStyle = rgba('bg', 0.86 * a); ctx.fillRect(bx, by, bw, 118);
     ctx.strokeStyle = rgba('teal', 0.45 * a); ctx.lineWidth = 1; ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, 117);
     ctx.fillStyle = rgba('teal', a); ctx.fillRect(bx, by, 3, 118);
-    const rows = [['VERSION PELVIENNE', frS(m.tilt, 1)], ['PENTE SACRÉE (PS)', fr(m.ss, 1)], ['LORDOSE L1–S1', fr(m.ll, 1)]];
+    const rows = [['VERSION PELVIENNE (VP)', fr(P2.anatomy.PI_DEG - m.ss, 1)], ['PENTE SACRÉE (PS)', fr(m.ss, 1)], ['LORDOSE L1–S1', fr(m.ll, 1)]];
     rows.forEach(([l, val], i) => {
       const y = by + 32 + i * 34;
       text(ctx, l, bx + 16, y - 2, { size: 12, c: 'grey', a, ls: 1, w: 700, id: 's3bl' + i + mode });
@@ -640,20 +647,20 @@
       const A = F.A, S = (q) => cam.w2s(q);
       // rétroversion : ischio-jambiers (non détaillés) sur la tubérosité ischiatique, vers le bas
       const it = S(A.pel('ischialTuber'));
-      arrow(ctx, it, [it[0] + 4, it[1] + 44], C_RA, aC, { lw: 3, head: 12, dash: [5, 4], outline: true });
-      tag(ctx, [it[0] + 3, it[1] + 22], [760, 972], [{ s: 'ischio-jambiers (non détaillés)', size: 13, c: 'white', ls: 0.3 }], { a: aC, lc: C_RA, id: 's3rH' });
+      arrow(ctx, it, [it[0] + 4, it[1] + 44], 'white', 0.85 * aC, { lw: 3, head: 12, dash: [5, 4], outline: true });
+      tag(ctx, [it[0] + 3, it[1] + 22], [760, 972], [{ s: 'ischio-jambiers (non détaillés)', size: 13, c: 'white', ls: 0.3 }], { a: aC, lc: 'grey', id: 's3rH' });
       // antéversion (opposée) : érecteurs sur la crête sacrée / EIPS (vers le haut), psoas-iliaque (vers le bas, en avant de la hanche)
       const ps = S(A.pel('PSIS'));
       arrow(ctx, ps, [ps[0] + 6, ps[1] - 48], C_ES, 0.75 * aC, { lw: 2.6, head: 11, dash: [5, 4], outline: true });
       tag(ctx, [ps[0] + 4, ps[1] - 26], [880, 700], [{ s: 'érecteurs', size: 13, c: mix(C_ES, 'white', 0.25), ls: 0.3 }], { a: 0.9 * aC, lc: C_ES, id: 's3rE' });
-      const em = S(A.pel('AIIS'));
+      const em = S(A.pelN([-46, -6]));   // fosse iliaque (iliaque) ; l'EIAI est l'origine du droit fémoral
       arrow(ctx, em, [em[0] + 10, em[1] + 46], C_IL, 0.75 * aC, { lw: 2.6, head: 11, dash: [5, 4], outline: true });
       tag(ctx, [em[0] + 5, em[1] + 24], [404, 668], [{ s: 'psoas-iliaque', size: 13, c: C_IL, ls: 0.3 }], { a: 0.9 * aC, align: 'right', lc: C_IL, id: 's3rP' });
       // légende des deux couples
       msgBox(ctx, 868, 768, 300, [
         { s: 'COUPLES AUTOUR DES HANCHES', c: 'white', w: 700, size: 13, ls: 1 },
         { s: 'rétroversion : abdominaux', c: mix(C_RA, 'white', 0.3), size: 13 },
-        { s: '  + ischio-jambiers', c: mix(C_RA, 'white', 0.3), size: 13 },
+        { s: '  + ischio-jambiers', c: 'white', size: 13 },
         { s: 'antéversion : psoas-iliaque', c: C_IL, size: 13 },
         { s: '  + érecteurs', c: mix(C_ES, 'white', 0.25), size: 13 },
       ], { a: aC, c: 'teal', id: 's3rL' });
@@ -698,9 +705,9 @@
     // ---- mécanique au disque L4/L5
     const ma = ra(24.75);
     if (ma > 0.004) {
-      const P_ = m.ps;
+      const P_ = psN();
       sep(ctx, x, y, Wd, ma); y += 22;
-      text(ctx, 'AU DISQUE L4–L5 · CALCULÉ SUR LA GÉOMÉTRIE', x, y, { size: 12, c: 'grey', a: ma, ls: 1.3, w: 700, id: 's3p1m' });
+      text(ctx, 'AU DISQUE L4–L5 · BASSIN NEUTRE · GÉOMÉTRIE', x, y, { size: 12, c: 'grey', a: ma, ls: 1.3, w: 700, id: 's3p1m' });
       y += 30;
       valRow(ctx, x, y, ['d'], 'bras de levier de la résultante', fr(Math.abs(P_.d) / 10, 1), 'cm', TEAL_L, ma, 's3p1d');
       y += 20;
@@ -715,7 +722,7 @@
         const yy = y + i * 40;
         const lw = text(ctx, l, x, yy, { size: 13, c: 'white', a: ma, ls: 0.8, w: 700, id: 's3p1bl' + i });
         text(ctx, s, x + lw + 10, yy, { size: 12, c: 'grey', a: ma, id: 's3p1bs' + i });
-        text(ctx, Math.round(v * 100) + ' %', x + 380, yy, { size: 15, c: col, a: ma, w: 700, align: 'right', id: 's3p1bv' + i });
+        text(ctx, fr(v, 2) + ' F', x + 380, yy, { size: 15, c: col, a: ma, w: 700, align: 'right', id: 's3p1bv' + i });
         text(ctx, frN(F_PS * v) + ' N', x + Wd, yy, { size: 15, c: 'white', a: ma, w: 600, align: 'right', id: 's3p1bn' + i });
         ctx.fillStyle = rgba('grey', 0.22 * ma); ctx.fillRect(x, yy + 8, Wd, 7);
         ctx.fillStyle = rgba(i ? 'teal' : 'white', 0.85 * ma); ctx.fillRect(x, yy + 8, Wd * clamp(v) * smooth(seg(t, 25.1, 25.6)), 7);
@@ -731,7 +738,7 @@
       y += 8; sep(ctx, x, y, Wd, ia); y += 22;
       text(ctx, 'EFFET LORDOSANT INDIRECT · EN DIRECT', x, y, { size: 12, c: 'grey', a: ia, ls: 1.3, w: 700, id: 's3p1e' });
       y += 28;
-      const cols = [['version pelvienne', frS(m.tilt, 1)], ['pente sacrée', fr(m.ss, 1)], ['lordose L1–S1', fr(m.ll, 1)]];
+      const cols = [['version pelvienne', fr(P2.anatomy.PI_DEG - m.ss, 1)], ['pente sacrée', fr(m.ss, 1)], ['lordose L1–S1', fr(m.ll, 1)]];
       cols.forEach(([l, v], i) => {
         const xx = x + i * 176;
         text(ctx, l, xx, y, { size: 12, c: 'grey', a: ia, id: 's3p1el' + i });
@@ -767,14 +774,14 @@
       y += 30;
       valRow(ctx, x, y, ['d', { s: 'GD', sub: true }], 'bras de levier du grand droit · L4–L5', fr(Math.abs(R.d) / 10, 1), 'cm', TEAL_L, ma, 's3p2d');
       y += 28;
-      valRow(ctx, x, y, ['d', { s: 'PS', sub: true }], 'psoas, même disque (rappel)', fr(Math.abs(m.ps.d) / 10, 1), 'cm', C_TXT, ma, 's3p2r');
+      valRow(ctx, x, y, ['d', { s: 'PS', sub: true }], 'psoas, même disque (bassin neutre)', fr(Math.abs(psN().d) / 10, 1), 'cm', C_TXT, ma, 's3p2r');
       y += 28;
       valRow(ctx, x, y, ['d', { s: 'H', sub: true }], 'grand droit · axe des hanches', fr(Math.abs(R.dHip) / 10, 1), 'cm', TEAL_L, ma, 's3p2h');
       y += 26;
-      y += P.wrap(ctx, 'Ligne d’action : droite pubis → terminaisons (modèle rectiligne). Force sur le tronc dirigée vers le pubis → couple fléchisseur ; sur le bassin, vers le haut → rétroversion.', x, y, Wd, { size: 12, c: 'grey', a: ma, id: 's3p2n2' });
+      y += P.wrap(ctx, 'Ligne d’action : pubis → paroi en regard de L4–L5. Force sur le tronc dirigée vers le pubis → couple fléchisseur ; sur le bassin, vers le haut → rétroversion.', x, y, Wd, { size: 12, c: 'grey', a: ma, id: 's3p2n2' });
       const ia = ra(29.9);
       y += 10;
-      const cols = [['version pelvienne', frS(m.tilt, 1)], ['pente sacrée', fr(m.ss, 1)], ['lordose L1–S1', fr(m.ll, 1)]];
+      const cols = [['version pelvienne', fr(P2.anatomy.PI_DEG - m.ss, 1)], ['pente sacrée', fr(m.ss, 1)], ['lordose L1–S1', fr(m.ll, 1)]];
       cols.forEach(([l, v], i) => {
         const xx = x + i * 176;
         text(ctx, l, xx, y + 10, { size: 12, c: 'grey', a: ia, id: 's3p2el' + i });

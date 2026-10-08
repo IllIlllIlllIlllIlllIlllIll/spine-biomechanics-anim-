@@ -112,14 +112,15 @@ npm run p2:build          # les cinq, dans l'ordre
 |---|---|---|
 | Posture | PI = PT + SS ; incidence 50°, pente sacrée ≈ 32°, version ≈ 18° ; antéflexion α répartie 0,6 lombaire / 0,4 hanche ; antéversion compensée par la lordose | Legaye et al. 1998 (relation) ; valeurs du modèle |
 | Multifide | Rotation sagittale postérieure, sans action de translation ; ≈ 20 % du moment extenseur en L4–L5 | Macintosh & Bogduk 1986 ; Bogduk et al. 1992 |
-| Pression intra-abdominale | −18 à −31 % de compression selon le modèle (PIA 5 → 10 kPa) ; raideur du tronc accrue sans hausse de compression | Stokes 2010 ; Ludvig 2019 |
+| Pression intra-abdominale | −18 à −31 % de compression (modèle, PIA 5 → 10 kPa, efforts de 60 N·m) ; ceinture lombaire in vivo : raideur du tronc accrue avec moins d'activité abdominale, effet attribué à la PIA | Stokes 2010 ; Ludvig 2019 |
 | Moment extenseur (scène 2) | Statique plane en L4–L5 : W = 60 % de 70 kg appliqué en G ; F_ES = W·d_G / d_ES ; C = (W + F_ES)·n du disque, n = normale au plateau ; d_ES mesuré sur la géométrie | Macintosh et al. 1993 ; Bogduk et al. 1992 |
 | Carré des lombes | Allongement des faisceaux = longueur / longueur au repos − 1, calculé sur la géométrie frontale | modèle |
 | Psoas | Compression et cisaillement importants, moments segmentaires faibles ; effet lordosant indirect par l'antéversion pelvienne | Bogduk, Pearcy & Hadfield 1992 |
 | Grand droit, obliques | Insertions propres de chaque muscle ; les obliques sont les principaux rotateurs du tronc | Macintosh 1993 |
-| Stabilité | Trois sous-systèmes (passif, actif, contrôle neural) ; zone neutre en flexion-extension réduite de 83 % par des forces musculaires simulées ; la cocontraction psoas + multifide rigidifie en inclinaison et en rotation | Panjabi 1992 ; Wilke et al. 1995 ; Quint et al. 1998 |
+| Équilibre des couples (scène 4) | Statique plane en L4–L5 : M_req = W·d_G + P·d_L (20 kg sur les épaules) ; extenseurs F_ES·d_ES = M_req + M_ABD ; cocontraction illustrative M_ABD = 15 % de M_ES | modèle ; Granata & Marras 2000 (modèle EMG : compression +12 à 18 %, stabilité +34 à 64 %) |
+| Stabilité | Trois sous-systèmes (passif, actif, contrôle neural) ; zone neutre en flexion-extension réduite de 83 % par des forces musculaires simulées (in vitro) ; la cocontraction psoas + multifide rigidifie en inclinaison et en rotation, +13 % d'amplitude sagittale ; rachis ligamentaire seul : flambement ≈ 88 N | Panjabi 1992 I-II ; Wilke et al. 1995 ; Quint et al. 1998 ; Crisco et al. 1992 |
 
-Les DOI de toutes les sources figurent dans `partie2/SPEC.md` et `partie2/STORYBOARD.md`.
+Les DOI de toutes les sources figurent dans `partie2/SPEC.md` (§7).
 
 ## Contrôle qualité
 

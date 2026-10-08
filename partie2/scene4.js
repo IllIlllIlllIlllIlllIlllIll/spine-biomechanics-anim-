@@ -139,7 +139,8 @@
   const PSOAS = { group: 'flexor', color: 'crimson', tendon: 0.1, fascicles: [
     { path: [V('T12', -6, 6), V('L2', -10, 0), V('L4', -16, 2), V('L5', -26, 16), (A) => vadd(A.pel('iliopubic'), [2, -6]), (A) => A.fem('lesserTrochanter')], w: 11, fibers: 5 },
   ] };
-  // TRANSVERSE (cobalt) : bande de la paroi, fibres horizontales (ceinture) entre la paroi et l'arrière de la cavité
+  // TRANSVERSE (cobalt) : fibres horizontales (ceinture) de la paroi antérieure jusqu'au fascia thoraco-lombaire
+  // (feuillet moyen → processus costiformes), en arrière des corps vertébraux : dessiné SOUS le squelette (comme en scène 1)
   const TA_LV = ['L1', 'L2', 'L3', 'L4', 'L5'];
   const TA_U = (() => { // u de la paroi à la hauteur de chaque corps (posture neutre ; fonction pure, calculée une fois)
     const G0 = P2.anatomy.sagittal({ pelvicTilt: 0, lumbarFlex: 0, hipFlex: 0 }), A0 = P2.anatomy.anchors(G0);
@@ -150,8 +151,7 @@
     });
   })();
   const TRA = { group: 'deep', color: 'cobalt', tendon: 0.06, fascicles: TA_LV.map((n, i) => {
-    const D = LV[IX[n]].D;
-    return { path: [V(n, -(D / 2 + 16), 0), (A) => vlerp(A.v(n, [-(D / 2 + 16), 0]), A.wall(TA_U[i]), 0.5), (A) => A.wall(TA_U[i])], w: 9, fibers: 3 };
+    return { path: [V(n, 40, 0), (A) => vlerp(A.v(n, [40, 0]), A.wall(TA_U[i]), 0.5), (A) => A.wall(TA_U[i])], w: 9, fibers: 3 };
   }) };
 
   // =========================================================================
@@ -215,6 +215,17 @@
     return { es: Math.max(es, 0.3 * pj), mf: Math.max(es, 0.45 * pj), abd: Math.max(abd, 0.15 * pj), ps: 0.1 + 0.1 * pj, tra: Math.max(tra, 0.3 * pj) };
   }
 
+  /** Transverse sous le squelette (fibres de la paroi jusqu'au FTL, masquées par les vertèbres en projection). */
+  function drawTransverse(ctx, F, cam, m) {
+    const t = F.t, grow = E.io(seg(t, 32.35, 32.9));
+    if (grow <= 0) return;
+    const mech = fio(t, T.mech[0] + 0.3, T.mech[1], 0.4, 0.4);
+    MU.drawMuscle(ctx, cam, F.A, TRA, { grow, act: activations(F, m).tra, a: 1 - 0.35 * mech, t });
+    // insertion antérieure seulement (ligne blanche) : la terminaison postérieure est le FTL, hors du plan
+    const att = 0.8 * fio(t, 32.5, 34.0, 0.3, 0.4) * smooth(seg(grow, 0.8, 1));
+    if (att > 0.004) for (let i = 0; i < TA_LV.length; i++) dot(ctx, cam.w2s(F.A.wall(TA_U[i])), 2.6, 'white', att);
+  }
+
   function drawHaubans(ctx, F, cam, m) {
     const t = F.t, A = F.A;
     const g = (t0) => E.io(seg(t, t0, t0 + 0.55));
@@ -222,7 +233,6 @@
     const mech = fio(t, T.mech[0] + 0.3, T.mech[1], 0.4, 0.4);   // focus sur les haubans du plan sagittal
     const att = 0.8 * fio(t, 32.5, 34.0, 0.3, 0.4);              // points d'insertion (bloc 1)
     const items = [
-      [TRA, g(32.35), ac.tra, 1 - 0.35 * mech],
       [PSOAS, g(32.25), ac.ps, 1 - 0.45 * mech],
       [RECT, g(32.15), ac.abd, 1],
       [MF, g(32.08), ac.mf, 1 - 0.2 * mech],
@@ -276,7 +286,7 @@
     tag(ctx, S(A.v('T11', [53, 3])), [XR, 452], [{ s: 'ÉRECTEURS DU RACHIS', c: 'amber', w: 700 }, { s: 'haubans postérieurs', size: 13, ls: 0.5 }, { s: 'bassin, sacrum → côtes', size: 13, ls: 0.5 }], { a: k(T.lab[0]), lc: 'amber', id: 's4lES' });
     tag(ctx, S(vlerp(A.spinInf('L3', 0.3), A.mam('L5'), 0.5)), [XR, 636], [{ s: 'MULTIFIDE', c: 'cobalt', w: 700 }, { s: 'courts haubans segmentaires', size: 13, ls: 0.5 }], { a: k(T.lab[0] + 0.1), lc: 'cobalt', id: 's4lMF' });
     tag(ctx, S(RW(0.3, 0.5)(A)), [XL, 474], [{ s: 'GRAND DROIT', c: 'crimson', w: 700 }, { s: 'pubis → cartilages 5–7', size: 13, ls: 0.5 }], { a: k(T.lab[0] + 0.05), lc: 'crimson', align: 'right', id: 's4lRA' });
-    tag(ctx, S(vlerp(A.v('L3', [-(LV[IX.L3].D / 2 + 16), 0]), A.wall(TA_U[2]), 0.35)), [XL, 600], [{ s: 'TRANSVERSE', c: 'cobalt', w: 700 }, { s: 'ceinture de la paroi', size: 13, ls: 0.5 }], { a: k(T.lab[0] + 0.15), lc: 'cobalt', align: 'right', id: 's4lTA' });
+    tag(ctx, S(vlerp(A.v('L3', [40, 0]), A.wall(TA_U[2]), 0.72)), [XL, 600], [{ s: 'TRANSVERSE', c: 'cobalt', w: 700 }, { s: 'ceinture de la paroi', size: 13, ls: 0.5 }], { a: k(T.lab[0] + 0.15), lc: 'cobalt', align: 'right', id: 's4lTA' });
     tag(ctx, S(A.v('L5', [-26, 16])), [XL, 742], [{ s: 'PSOAS', c: 'crimson', w: 700 }, { s: 'corps lombaires → petit trochanter', size: 13, ls: 0.5 }], { a: k(T.lab[0] + 0.2), lc: 'crimson', align: 'right', id: 's4lPS' });
   }
 
@@ -456,7 +466,7 @@
       text(ctx, d, lx + 18, y + 22, { size: 13, c: 'white', a: ra, id: 's4p1d' + i });
     });
     let y = P.PY + 680;
-    y += P.wrap(ctx, nb('Sans haubans, le rachis lombaire ligamentaire isolé flambe sous ≈ 88 N : la stabilité vient des muscles.'), x, y, Wd, { size: 14, c: 'white', a: k(32.6), id: 's4p1m' });
+    y += P.wrap(ctx, nb('Sans haubans, le rachis lombaire ligamentaire isolé flambe sous ≈ 88 N (in vitro) : la stabilité vient des muscles.'), x, y, Wd, { size: 14, c: 'white', a: k(32.6), id: 's4p1m' });
     P.cite(ctx, 'Crisco et al. 1992 · doi:10.1016/0268-0033(92)90004-N', x, P.PY + P.PH - 34, a);
   }
 
@@ -540,9 +550,9 @@
     });
     // notes
     let y = P.PY + 636;
-    y += P.wrap(ctx, nb('Modèle statique plan. F_ES : résultante des extenseurs sur la ligne d’action des faisceaux thoraciques (multifide ≈ 20 % du moment : Bogduk et al. 1992) ; C = (W + P + F_ES + F_ABD)·n du disque.'), x, y, Wd, { size: 12, c: 'grey', a, id: 's4n1' });
+    y += P.wrap(ctx, nb('Modèle statique plan. Force des extenseurs : résultante de tous les extenseurs sur la ligne d’action des faisceaux thoraciques (multifide ≈ 20 % du moment : Bogduk et al. 1992) ; C = composante normale au disque de W + P + forces musculaires.'), x, y, Wd, { size: 12, c: 'grey', a, id: 's4n1' });
     y += 6;
-    y += P.wrap(ctx, nb('In vivo, la cocontraction augmente la compression de 12 à 18 % et la stabilité de 34 à 64 % (Granata & Marras 2000, doi:10.1097/00007632-200006010-00012).'), x, y, Wd, { size: 12, c: 'grey', a: aB, id: 's4n2' });
+    y += P.wrap(ctx, nb('Modèle EMG (10 sujets, soulevés) : cocontraction → compression +12 à 18 %, stabilité +34 à 64 % (Granata & Marras 2000, doi:10.1097/00007632-200006010-00012).'), x, y, Wd, { size: 12, c: 'grey', a: aB, id: 's4n2' });
   }
 
   // ---- courbe charge-déplacement L4–L5 (Panjabi ; Wilke et al. 1995)
@@ -649,7 +659,7 @@
     let y = P.PY + 620;
     y += P.wrap(ctx, nb('Nuance : in vitro, la cocontraction psoas + multifide rigidifie le segment en inclinaison et en rotation, mais augmente de 13 % l’amplitude sagittale (Quint et al. 1998).'), x, y, Wd, { size: 12, c: 'grey', a: k(38.55), id: 's4q' });
     y += 10;
-    P.cite(ctx, 'Panjabi 1992 · doi:10.1097/00002517-199212000-00001 ; Wilke et al. 1995 · doi:10.1097/00007632-199501150-00011 ; Quint et al. 1998 · doi:10.1097/00007632-199809150-00003', x, y, a);
+    P.cite(ctx, 'Panjabi 1992 I-II · doi:10.1097/00002517-199212000-00001, -00002 ; Wilke et al. 1995 · doi:10.1097/00007632-199501150-00011 ; Quint et al. 1998 · doi:10.1097/00007632-199809150-00003', x, y, a);
   }
 
   // =========================================================================
@@ -660,6 +670,9 @@
     state(F) {
       const t = F.t;
       if (t >= T.mech[0] - 0.1 && t <= T.p2[1] + 0.05) F.M.s4 = mech(F.A, F.G, F.S.load);
+    },
+    sagUnder(ctx, F, cam) {
+      if (F.t >= T.s0) drawTransverse(ctx, F, cam, F.M.s4);
     },
     sag(ctx, F, cam) {
       const t = F.t;

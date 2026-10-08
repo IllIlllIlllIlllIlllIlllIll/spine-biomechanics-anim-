@@ -9,7 +9,7 @@ fléchisseurs cramoisi `#e71d36`, vecteurs vert `#2ec4b6`, squelette cyan attén
 |---|---|---|
 | Multifide « opposé au cisaillement antérieur » | Rotation sagittale postérieure, **sans action de translation** ; ≈ 20 % du moment extenseur L4–L5 | Macintosh & Bogduk 1986, doi:10.1016/0268-0033(86)90147-6 ; Bogduk et al. 1992, doi:10.1097/00007632-199208000-00007 |
 | Psoas « augmente la lordose » | Moments segmentaires très faibles, **compression sévère**, cisaillement ; effet lordosant **indirect** (antéversion pelvienne, fémur fixe) | Bogduk, Pearcy & Hadfield 1992, doi:10.1016/0268-0033(92)90024-X |
-| PIA « décharge le disque » | −18 à −31 % de compression **selon modèle** (PIA 5 → 10 kPa) ; + raideur sans + compression | Stokes 2010, doi:10.1016/j.clinbiomech.2010.06.018 ; Ludvig 2019, doi:10.1016/j.clinbiomech.2019.04.019 |
+| PIA « décharge le disque » | −18 à −31 % de compression **selon modèle** (PIA 5 → 10 kPa, efforts de 60 N·m) ; ceinture lombaire in vivo : + raideur avec moins d'activité abdominale (effet attribué à la PIA) | Stokes 2010, doi:10.1016/j.clinbiomech.2010.06.018 ; Ludvig 2019, doi:10.1016/j.clinbiomech.2019.04.019 |
 | Érecteurs « jusqu'à l'occiput » | Jusqu'au **processus mastoïde** (longissimus capitis) ; l'occiput relève du semi-épineux | anatomie descriptive |
 | Obliques « pubis → cartilages 5–7 » | Ces insertions sont celles du grand droit ; obliques avec leurs insertions propres | anatomie descriptive ; Macintosh 1993, doi:10.1111/j.1445-2197.1993.tb00520.x |
 | Transverse | + face interne des cartilages 7–12 | anatomie descriptive |

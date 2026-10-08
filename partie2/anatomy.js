@@ -300,7 +300,7 @@
       /** centre de masse du haut du corps (tête-bras-tronc au-dessus de L4/L5) */
       comHAT: () => G.ribs.map([-24, -290]),
       /** appui d'une charge sur les épaules (trapèzes, en arrière de C7–T1) */
-      shoulder: () => toW(vert('T1').F, [46, -26]),
+      shoulder: () => toW(vert('T1').F, [80, -35]),   // barre posée sur les trapèzes, en arrière de la peau (au-dessus de C7)
       hip: () => G.hip,
     };
     return A;

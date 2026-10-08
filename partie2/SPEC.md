@@ -160,14 +160,15 @@ constantes de la littérature, qui sont alors citées.
 - **Transverse de l'abdomen** : face interne des cartilages 7 à 12, fascia thoraco-lombaire (feuillet moyen →
   processus costiformes, via le raphé latéral), 2/3 antérieurs de la lèvre interne de la crête iliaque, tiers
   latéral du ligament inguinal → ligne blanche. Effet corset → PIA. Décharge : **−18 à −31 % de compression
-  (modèle, PIA 5 → 10 kPa)** (Stokes 2010, doi:10.1016/j.clinbiomech.2010.06.018) et hausse de raideur sans hausse
-  de compression (Ludvig 2019, doi:10.1016/j.clinbiomech.2019.04.019). Libellé « selon modèle ».
+  (modèle, PIA 5 → 10 kPa, efforts de 60 N·m selon la direction)** (Stokes 2010, doi:10.1016/j.clinbiomech.2010.06.018).
+  Ceinture lombaire **in vivo** : raideur du tronc ↑ avec activité abdominale ↓, effet attribué à la PIA (hypothèse,
+  sans mesure de PIA ni de compression) (Ludvig 2019, doi:10.1016/j.clinbiomech.2019.04.019).
 - **Érecteurs** : iliocostal (crête iliaque, aponévrose → angles costaux 4–12, processus transverses C4–C6),
   longissimus (sacrum, aponévrose, processus accessoires → processus transverses T1–T12, côtes 3–12 ;
   longissimus capitis → **processus mastoïde**), épineux (épineuses T11–L2 → T1–T8). L'occiput est atteint par
   le semi-épineux de la tête (transversaire-épineux), pas par les érecteurs. Faisceaux thoraciques ≈ 50 % du
-  moment extenseur en L4–L5 (Bogduk 1992). En flexion, bras de levier réduits d'au plus 18 % (Macintosh 1993,
-  doi:10.1097/00007632-199306000-00013).
+  moment extenseur en L4–L5 (Bogduk 1992). En flexion, bras de levier légèrement réduits : moment extenseur maximal
+  réduit d'au plus 18 % (Macintosh 1993, doi:10.1097/00007632-199306000-00013).
 - **Carré des lombes** : lèvre interne de la crête iliaque, ligament ilio-lombaire → bord inférieur de la 12e côte
   et sommets des processus costiformes L1–L4 ; faisceaux ilio-costaux, ilio-transversaires et costo-transversaires.
 - **Psoas** : faces latérales des corps T12–L5 et disques, processus costiformes L1–L5 → **petit trochanter**
@@ -179,10 +180,16 @@ constantes de la littérature, qui sont alors citées.
   ligne blanche (fibres en bas et en avant). **Oblique interne** : FTL, 2/3 antérieurs de la crête iliaque,
   ligament inguinal → bord inférieur des côtes 10–12, ligne blanche (fibres en haut et en avant). Les obliques
   sont les principaux rotateurs du tronc (Macintosh 1993, doi:10.1111/j.1445-2197.1993.tb00520.x).
-- **Panjabi 1992** : système passif, actif, contrôle neural ; **zone neutre** : diminuée de 83 % en flexion-
-  extension par des forces musculaires simulées (Wilke 1995). La cocontraction psoas + multifide rigidifie en
-  inclinaison latérale et en rotation, mais augmente de 13 % l'amplitude sagittale (Quint 1998,
-  doi:10.1097/00007632-199809150-00003).
+- **Panjabi 1992** : système passif, actif, contrôle neural (partie I, doi:10.1097/00002517-199212000-00001) ;
+  **zone neutre**, qui diminue quand la force musculaire augmente (partie II, doi:10.1097/00002517-199212000-00002) :
+  diminuée de 83 % en flexion-extension par des forces musculaires simulées, in vitro (Wilke 1995). La cocontraction
+  psoas + multifide rigidifie en inclinaison latérale et en rotation, mais augmente de 13 % l'amplitude sagittale,
+  in vitro (Quint 1998, doi:10.1097/00007632-199809150-00003).
+- **Autres sources** : Bergmark 1989, doi:10.3109/17453678909154177 (système local / global) ; Macintosh et al. 1986,
+  doi:10.1016/0268-0033(86)90146-4 (5 bandes du multifide, innervation unisegmentaire) ; Crisco et al. 1992,
+  doi:10.1016/0268-0033(92)90004-N (rachis lombaire ligamentaire, flambement frontal ≈ 88 N, in vitro) ;
+  Granata & Marras 2000, doi:10.1097/00007632-200006010-00012 (modèle piloté par l'EMG : cocontraction → compression
+  +12 à 18 %, stabilité +34 à 64 %) ; Legaye et al. 1998, doi:10.1007/s005860050038 (PI = PT + SS).
 
 ## 8. Tester
 
