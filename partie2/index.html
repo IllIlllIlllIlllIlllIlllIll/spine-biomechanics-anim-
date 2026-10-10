@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Biomécanique du rachis</title>
+  <title>Haubanage musculaire</title>
   <style>
     html, body { margin: 0; height: 100%; background: #0f141c; overflow: hidden; }
     canvas { display: block; width: 100vw; height: 100vh; object-fit: contain; }
@@ -15,18 +15,24 @@
 <body>
   <canvas id="c" width="1920" height="1080"></canvas>
   <div id="ctl">ESPACE lecture/pause · ← → image par image · ↑ ↓ ±1 s · 0 début</div>
-  <script src="lib/core.js"></script>
+  <script src="../lib/core.js"></script>
+  <script src="anatomy.js"></script>
+  <script src="muscles.js"></script>
   <script src="animation.js"></script>
+  <script src="scene1.js"></script>
+  <script src="scene2.js"></script>
+  <script src="scene3.js"></script>
+  <script src="scene4.js"></script>
   <script>
     (function () {
       'use strict';
-      const A = window.SpineAnim;
+      const A = window.SpineAnim2;
       const params = new URLSearchParams(location.search);
       const RENDER = params.has('render');
       const DEBUG = params.has('debug');
       if (RENDER) document.body.classList.add('render');
       const canvas = document.getElementById('c');
-      const ctx = A.init(canvas);
+      const ctx = A.init(canvas, { debug: params.get('debug') || '' });
 
       // Mode debug : cadres englobants des étiquettes (contrôle des chevauchements)
       function overlay(res) {
@@ -48,6 +54,7 @@
         return Promise.resolve(current);
       };
       window.TOTAL_FRAMES = A.TOTAL;
+      window.qaFrame = (f) => A.qaReport(f);
 
       const start = params.has('frame') ? parseInt(params.get('frame'), 10) || 0 : 0;
       (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {

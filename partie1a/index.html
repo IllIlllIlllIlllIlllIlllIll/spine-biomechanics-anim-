@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Biomécanique du rachis</title>
+  <title>Conflit zygapophysaire L4–L5</title>
   <style>
-    html, body { margin: 0; height: 100%; background: #0f141c; overflow: hidden; }
+    html, body { margin: 0; height: 100%; background: #0a0e14; overflow: hidden; }
     canvas { display: block; width: 100vw; height: 100vh; object-fit: contain; }
     body.render canvas { width: 1920px; height: 1080px; }
     #ctl { position: fixed; left: 12px; bottom: 8px; font: 12px 'DejaVu Sans Mono', Menlo, monospace; color: #5a6b80; user-select: none; }
@@ -15,12 +15,12 @@
 <body>
   <canvas id="c" width="1920" height="1080"></canvas>
   <div id="ctl">ESPACE lecture/pause · ← → image par image · ↑ ↓ ±1 s · 0 début</div>
-  <script src="lib/core.js"></script>
-  <script src="animation.js"></script>
+  <script src="../lib/core.js"></script>
+  <script src="scene1a.js"></script>
   <script>
     (function () {
       'use strict';
-      const A = window.SpineAnim;
+      const A = window.SpineAnim1A;
       const params = new URLSearchParams(location.search);
       const RENDER = params.has('render');
       const DEBUG = params.has('debug');
@@ -48,6 +48,7 @@
         return Promise.resolve(current);
       };
       window.TOTAL_FRAMES = A.TOTAL;
+      window.qaFrame = (f) => A.qaReport(f);
 
       const start = params.has('frame') ? parseInt(params.get('frame'), 10) || 0 : 0;
       (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {

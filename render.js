@@ -2,7 +2,8 @@
 /**
  * render.js — capture des 1800 frames de l'animation en PNG via Playwright (Chromium headless).
  *
- *   node render.js                      → ./frames/frame_00000.png … frame_01799.png
+ *   node render.js                      → partie 1 : ./frames/frame_00000.png … frame_01799.png
+ *   node render.js --page partie2/index.html --out partie2/frames   → partie 2 (2400 frames)
  *   node render.js --start 600 --end 720 --out frames_test
  *   node render.js --frames 0,450,900   → uniquement ces frames
  *   node render.js --workers 4          → pages en parallèle (frames indépendantes)
@@ -18,10 +19,11 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 function parseArgs(argv) {
-  const o = { out: 'frames', start: 0, end: 1799, workers: Math.max(1, Math.min(4, os.cpus().length)), qa: false, frames: null };
+  const o = { page: 'index.html', out: 'frames', start: 0, end: null, workers: Math.max(1, Math.min(4, os.cpus().length)), qa: false, frames: null };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i], v = argv[i + 1];
-    if (a === '--out') { o.out = v; i++; }
+    if (a === '--page') { o.page = v; i++; }
+    else if (a === '--out') { o.out = v; i++; }
     else if (a === '--start') { o.start = parseInt(v, 10); i++; }
     else if (a === '--end') { o.end = parseInt(v, 10); i++; }
     else if (a === '--workers') { o.workers = Math.max(1, parseInt(v, 10)); i++; }
@@ -42,16 +44,22 @@ async function openPage(browser, url) {
 
 (async () => {
   const opt = parseArgs(process.argv);
-  const list = opt.frames || Array.from({ length: opt.end - opt.start + 1 }, (_, k) => opt.start + k);
-  const url = 'file://' + path.resolve(__dirname, 'index.html') + '?render';
+  const url = 'file://' + path.resolve(__dirname, opt.page) + '?render';
   const browser = await chromium.launch();
   const t0 = Date.now();
+  // nombre total de frames lu dans la page (1800 pour la partie 1, 2400 pour la partie 2)
+  const probe = await openPage(browser, url);
+  const total = await probe.evaluate(() => window.TOTAL_FRAMES);
+  await probe.close();
+  const end = opt.end == null ? total - 1 : Math.min(opt.end, total - 1);
+  const list = opt.frames || Array.from({ length: end - opt.start + 1 }, (_, k) => opt.start + k);
 
   if (opt.qa) {
     const page = await openPage(browser, url);
     const issues = await page.evaluate((frames) => {
       const out = [];
-      for (const f of frames) for (const is of window.SpineAnim.qaReport(f)) out.push(Object.assign({ frame: f }, is));
+      const qa = window.qaFrame || window.SpineAnim.qaReport;
+      for (const f of frames) for (const is of qa(f)) out.push(Object.assign({ frame: f }, is));
       return out;
     }, list);
     const groups = new Map();
