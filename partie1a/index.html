@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conflit zygapophysaire L4–L5</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0a0e14; overflow: hidden; }
+    canvas { display: block; width: 100vw; height: 100vh; object-fit: contain; }
+    body.render canvas { width: 1920px; height: 1080px; }
+    #ctl { position: fixed; left: 12px; bottom: 8px; font: 12px 'DejaVu Sans Mono', Menlo, monospace; color: #5a6b80; user-select: none; }
+    body.render #ctl { display: none; }
+  </style>
+</head>
+<body>
+  <canvas id="c" width="1920" height="1080"></canvas>
+  <div id="ctl">ESPACE lecture/pause · ← → image par image · ↑ ↓ ±1 s · 0 début</div>
+  <script src="../lib/core.js"></script>
+  <script src="scene1a.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      const A = window.SpineAnim1A;
+      const params = new URLSearchParams(location.search);
+      const RENDER = params.has('render');
+      const DEBUG = params.has('debug');
+      if (RENDER) document.body.classList.add('render');
+      const canvas = document.getElementById('c');
+      const ctx = A.init(canvas);
+
+      // Mode debug : cadres englobants des étiquettes (contrôle des chevauchements)
+      function overlay(res) {
+        if (!DEBUG) return;
+        ctx.save();
+        ctx.lineWidth = 1;
+        for (const b of res.labels) {
+          ctx.strokeStyle = b.a > 0.55 ? 'rgba(255,0,255,0.9)' : 'rgba(255,0,255,0.3)';
+          ctx.strokeRect(b.x0 + 0.5, b.y0 + 0.5, b.x1 - b.x0, b.y1 - b.y0);
+        }
+        ctx.restore();
+      }
+
+      let current = 0;
+      /** API publique : rend la frame demandée (fonction pure du numéro de frame). */
+      window.seekToFrame = function (frameIndex) {
+        current = Math.max(0, Math.min(A.TOTAL - 1, frameIndex | 0));
+        overlay(A.renderFrame(current));
+        return Promise.resolve(current);
+      };
+      window.TOTAL_FRAMES = A.TOTAL;
+      window.qaFrame = (f) => A.qaReport(f);
+
+      const start = params.has('frame') ? parseInt(params.get('frame'), 10) || 0 : 0;
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+        window.seekToFrame(start);
+        window.animationReady = true;
+        if (RENDER || params.has('frame')) return;
+
+        // Lecture temps réel (la frame dépend uniquement de l'horloge, pas de l'image précédente)
+        let playing = true, t0 = performance.now(), base = start;
+        function tick(now) {
+          if (playing) {
+            const f = (base + Math.floor(((now - t0) / 1000) * A.FPS)) % A.TOTAL;
+            if (f !== current) window.seekToFrame(f);
+          }
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        function jump(f) { base = ((f % A.TOTAL) + A.TOTAL) % A.TOTAL; t0 = performance.now(); window.seekToFrame(base); }
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space') { playing = !playing; jump(current); e.preventDefault(); }
+          else if (e.code === 'ArrowRight') { playing = false; jump(current + 1); }
+          else if (e.code === 'ArrowLeft') { playing = false; jump(current - 1); }
+          else if (e.code === 'ArrowUp') jump(current + A.FPS);
+          else if (e.code === 'ArrowDown') jump(current - A.FPS);
+          else if (e.key === '0') jump(0);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
