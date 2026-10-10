@@ -291,7 +291,7 @@
     const fArea = (G.foramenArea / REF.foramen - 1) * 100;
     const llaStrain = (G.llaLen / REF.lla - 1) * 100;
     // interligne (pôle inférieur) : géométrie rigide − compression du cartilage sous la charge facettaire (modèle)
-    const gap = Math.max(0.6, G.gapMin - 0.9 * clamp((share - 16) / 24));
+    const gap = Math.max(0.6, G.gapMin - 1.2 * clamp((share - 16) / 24));
     const cTip = smooth(seg(th, THC - 0.12, THC)), cSp = smooth(seg(th, THB - 0.12, THB));
     const stress = clamp((share - 16) / 24);
     return { t, th, nr, G, share, fArea, llaStrain, gap, cTip, cSp, stress, gA: gAlpha(t) };
@@ -312,7 +312,7 @@
   }
   const O_MAIN = [600, 640];
   const CAM = makeCam(O_MAIN, 5);
-  const LOUPE = { x: 1290, y: 686, w: 550, h: 300, sc: 15, target: [33.6, 3.0] };
+  const LOUPE = { x: 1290, y: 686, w: 550, h: 300, sc: 15, target: [34.0, 5.5] };
   function loupeCam() {
     const c = [LOUPE.x + LOUPE.w / 2, LOUPE.y + LOUPE.h / 2], b = -BETA * D2R, cb = Math.cos(b), sb = Math.sin(b);
     const p = LOUPE.target, off = [LOUPE.sc * (cb * p[0] - sb * p[1]), LOUPE.sc * (sb * p[0] + cb * p[1])];
@@ -668,7 +668,7 @@
     const t = st.t;
     frame(ctx, PX, 180, PW, 244, a);
     text(ctx, 'CARTOUCHE · L4–L5', PX + 22, 208, { size: 14, c: 'cyan', a, w: 700, ls: 2.5, id: 'c-title' });
-    const k3 = smooth(seg(t, 22.6, 23.2)), a12 = a * (1 - k3), a3 = a * k3;
+    const a12 = a * (1 - smooth(seg(t, 22.3, 22.65))), a3 = a * smooth(seg(t, 22.7, 23.05));   // fondus enchaînés (pas de superposition)
     if (a12 > 0.004) {
       const crit = st.th > THC - 0.01;
       row(ctx, 244, 'ANGLE SEGMENTAIRE', frS(st.th, 1) + '°', a12, crit ? { c: 'signal', sub: 'HYPEREXTENSION CRITIQUE', subc: 'signal' } : st.th > TH0 + 0.05 ? { sub: 'extension physiologique : ≈ 3–6°' } : { sub: 'lordose segmentaire debout' });
@@ -709,7 +709,8 @@
     frame(ctx, PX, 440, PW, 192, a, 'cyan');
     const s = st.share, crit = st.th > THC - 0.01;
     gauge(ctx, 470, 'PART FACETTAIRE DE LA COMPRESSION', s, 0, 60, [{ v: 16, s: 'neutre 16 %' }, { v: 26, s: 'disque sain 26 %', al: 'left' }], a,
-      { txt: '≈ ' + fr(s, 0) + ' %' + (crit ? '  (×' + fr(s / 16, 1) + ' vs neutre)' : ''), c: s > 30 ? 'crimson' : s > 22 ? 'amber' : 'mint' });
+      { txt: '≈ ' + fr(s, 0) + ' %', c: s > 30 ? 'crimson' : s > 22 ? 'amber' : 'mint' });
+    if (crit) text(ctx, '×' + fr(s / 16, 1) + ' vs neutre', PX + PW - 22, 514, { size: 12, c: 'crimson', a, align: 'right', w: 700, id: 'g-x' });
     gauge(ctx, 548, 'SURFACE DU FORAMEN (MODÈLE)', st.fArea, -40, 0, [{ v: -15, s: '−15 % : extension, in vitro (Inufusa 1996)' }], a,
       { txt: frS(st.fArea, 1) + ' %', c: st.fArea < -15 ? 'amber' : 'mint' });
     text(ctx, 'Pointillés : repères publiés · valeurs calculées sur la géométrie du modèle', PX + 22, 618, { size: 12, c: 'greyT', a, id: 'g-note' });
@@ -790,16 +791,16 @@
     if (a <= 0.004) return;
     const t = st.t;
     frame(ctx, PX, 650, PW, 340, a);
-    text(ctx, "PRESSION FACETTAIRE · DÉFORMATION DE L'ISTHME", PX + 22, 674, { size: 13, c: 'cyan', a, w: 700, ls: 1, id: 'gr-title' });
+    text(ctx, "PRESSION FACETTAIRE ET DÉFORMATION DE L'ISTHME", PX + 22, 674, { size: 12, c: 'cyan', a, w: 700, ls: 0.4, id: 'gr-title' });
     text(ctx, 'MODÈLE ILLUSTRATIF', PX + PW - 22, 674, { size: 12, c: 'signal', a, align: 'right', w: 700, ls: 1, id: 'gr-model' });
-    const x0 = PX + 70, x1 = PX + PW - 74, y0 = 700, y1 = 900;
+    const x0 = PX + 70, x1 = PX + PW - 74, y0 = 704, y1 = 888;
     const X = (th) => x0 + (x1 - x0) * (th - TH0) / (THB - TH0), YP = (p) => y1 - (y1 - y0) * p / 7, YE = (e) => y1 - (y1 - y0) * e / 8000;
     ctx.strokeStyle = rgba('grey', 0.6 * a); ctx.lineWidth = 1;
     line(ctx, [x0, y1], [x1, y1]); line(ctx, [x0, y0], [x0, y1]); line(ctx, [x1, y0], [x1, y1]);
     for (let th = 12; th <= 19; th++) { line(ctx, [X(th), y1], [X(th), y1 + 5]); text(ctx, String(th), X(th), y1 + 19, { size: 12, c: 'greyT', a, align: 'center', id: 'gx' + th }); }
     for (const p of [0, 2, 4, 6]) text(ctx, String(p), x0 - 8, YP(p) + 4, { size: 12, c: 'amber', a, align: 'right', id: 'gp' + p });
     text(ctx, 'MPa', x0 - 8, y0 - 6, { size: 12, c: 'amber', a, align: 'right', id: 'gpu' });
-    for (const e of [0, 4000, 8000]) text(ctx, fr(e / 1000, 0) + ' k', x1 + 8, YE(e) + 4, { size: 12, c: 'signal', a, id: 'ge' + e });
+    for (const e of [0, 4000]) text(ctx, fr(e / 1000, 0) + ' k', x1 + 8, YE(e) + 4, { size: 12, c: 'signal', a, id: 'ge' + e });
     text(ctx, 'με', x1 + 8, y0 - 6, { size: 12, c: 'signal', a, id: 'geu' });
     // seuils osseux
     ctx.setLineDash([5, 4]);
@@ -824,15 +825,16 @@
     curve(pH, 'amber', YP, true, 17.8); curve(eH, 'signal', YE, true, 17.8);
     curve(pN, 'amber', YP, false, THB); curve(eN, 'signal', YE, false, THB);
     if (k >= 0.999) { dot(ctx, [X(THB), YP(pN(THB))], 4.5, 'amber', a); dot(ctx, [X(THB), YE(eN(THB))], 4.5, 'signal', a); }
-    text(ctx, 'Angle de lordose L4–L5 (°)', (x0 + x1) / 2, y1 + 38, { size: 12, c: 'white', a, align: 'center', id: 'gxl' });
+    text(ctx, 'Angle de lordose L4–L5 (°)', (x0 + x1) / 2, y1 + 36, { size: 12, c: 'white', a, align: 'center', id: 'gxl' });
     // légende
-    const ly = 958;
-    ctx.strokeStyle = rgba('amber', a); ctx.lineWidth = 2.6; line(ctx, [PX + 22, ly - 4], [PX + 44, ly - 4]);
-    text(ctx, 'pression facettaire', PX + 50, ly, { size: 12, c: 'white', a, id: 'gl1' });
-    ctx.strokeStyle = rgba('signal', a); line(ctx, [PX + 200, ly - 4], [PX + 222, ly - 4]);
-    text(ctx, "déformation de l'isthme", PX + 228, ly, { size: 12, c: 'white', a, id: 'gl2' });
-    text(ctx, '— disque pincé   - - disque sain', PX + PW - 22, ly, { size: 12, c: 'greyT', a, align: 'right', id: 'gl3' });
-    text(ctx, 'Repères : ≈ 2,8 MPa à 7,5 N·m (EF, Du 2016) · seuils : Pattin 1996, Bayraktar 2004', PX + 22, 980, { size: 12, c: 'greyT', a, id: 'gl4' });
+    const ly = 946;
+    ctx.strokeStyle = rgba('amber', a); ctx.lineWidth = 2.6; line(ctx, [PX + 22, ly - 4], [PX + 40, ly - 4]);
+    text(ctx, 'pression (MPa)', PX + 46, ly, { size: 12, c: 'white', a, id: 'gl1' });
+    ctx.strokeStyle = rgba('signal', a); line(ctx, [PX + 170, ly - 4], [PX + 188, ly - 4]);
+    text(ctx, 'isthme (με)', PX + 194, ly, { size: 12, c: 'white', a, id: 'gl2' });
+    text(ctx, 'plein : pincé · tirets : sain', PX + PW - 22, ly, { size: 12, c: 'greyT', a, align: 'right', id: 'gl3' });
+    text(ctx, 'Repère : ≈ 2,8 MPa en extension à 7,5 N·m (EF, Du 2016)', PX + 22, 965, { size: 12, c: 'greyT', a, id: 'gl4' });
+    text(ctx, 'Seuils osseux : Pattin 1996 ; Bayraktar 2004 (os fémoral, in vitro)', PX + 22, 982, { size: 12, c: 'greyT', a, id: 'gl5' });
   }
 
   function alertBanner(ctx, t, a) {
@@ -958,7 +960,8 @@
       tag(ctx, S(ant), [XL, 760], [{ s: 'MISE EN DÉCHARGE DISCALE', c: 'amber' }, { s: 'ANTÉRIEURE', c: 'amber', w: 700, size: 15 }, { s: "tension anormale de l'anneau et du LLA" }], { a: dg(27.2), align: 'right', lc: 'amber', id: 'd-ant' });
       tag(ctx, S(vadd(PC, [1.5, 4])), [XR, 800], [{ s: 'MICRO-FRACTURES', c: 'crimson', size: 14 }, { s: 'SOUS-CHONDRALES', c: 'crimson', w: 700, size: 14 }, { s: 'zone à risque isthmique (L5)' }], { a: dg(27.5), lc: 'crimson', id: 'd-isth', size: 14 });
       tag(ctx, S(capSup), [XR, 300], [{ s: 'DOULEUR FACETTAIRE', c: 'signal', size: 14 }, { s: 'capsule pincée ;' }, { s: 'rameaux médiaux L3 et L4' }], { a: dg(27.8), lc: 'signal', id: 'd-noc', size: 14 });
-      text(ctx, 'Spondylolyse : isthme de L5 dans ≈ 90 % des cas (Sakai 2009) · douleur facettaire : 15–40 % des lombalgies chroniques (blocs contrôlés, Schwarzer 1994–1995)', 300, 960, { size: 12, c: 'greyT', a: dg(28.0), id: 's3-note' });
+      text(ctx, 'Spondylolyse : isthme de L5 dans ≈ 90 % des cas (Sakai 2009).', 300, 950, { size: 12, c: 'greyT', a: dg(28.0), id: 's3-note' });
+      text(ctx, 'Douleur facettaire : 15–40 % des lombalgies chroniques (blocs contrôlés, Schwarzer 1994–1995).', 300, 968, { size: 12, c: 'greyT', a: dg(28.0), id: 's3-note2' });
     }
   }
 
@@ -969,7 +972,9 @@
   function renderAt(ctx, t) {
     SC.beginLabels();
     const st = state(t), a = st.gA;
-    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+    // état du contexte remis à zéro : chaque frame ne dépend que de son numéro, quel que soit l'ordre de rendu
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    ctx.lineCap = 'butt'; ctx.lineJoin = 'miter'; ctx.setLineDash([]); ctx.lineWidth = 1; ctx.letterSpacing = '0px';
     ctx.fillStyle = SC.COL.bg; ctx.fillRect(0, 0, W, H);
     drawGrid(ctx);
     if (a > 0.004) {
